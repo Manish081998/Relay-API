@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Documentum.Infrastructure</RootNamespace>
+    <AssemblyName>Relay.Documentum.Infrastructure</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Documentum module — persistence adapters.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Relay.Documentum.Domain\Relay.Documentum.Domain.csproj" />
+    <ProjectReference Include="..\Relay.Documentum.Application\Relay.Documentum.Application.csproj" />
+    <ProjectReference Include="..\Relay.Documentum.Contracts\Relay.Documentum.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.Infrastructure.Core\Relay.Infrastructure.Core.csproj" />
+  </ItemGroup>
+
+</Project>

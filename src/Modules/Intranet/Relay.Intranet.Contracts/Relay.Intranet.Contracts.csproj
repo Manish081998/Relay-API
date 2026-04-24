@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Intranet.Contracts</RootNamespace>
+    <AssemblyName>Relay.Intranet.Contracts</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Public surface of the Intranet module. The only project other modules may reference.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.WebTool.Contracts</RootNamespace>
+    <AssemblyName>Relay.WebTool.Contracts</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Public surface of the WebTool module.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

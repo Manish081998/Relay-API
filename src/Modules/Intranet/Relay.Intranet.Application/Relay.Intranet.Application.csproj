@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Intranet.Application</RootNamespace>
+    <AssemblyName>Relay.Intranet.Application</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Intranet module — use-case orchestration. Depends on its Domain and the cross-cutting building blocks.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Relay.Intranet.Domain\Relay.Intranet.Domain.csproj" />
+    <ProjectReference Include="..\Relay.Intranet.Contracts\Relay.Intranet.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.CrossCutting\Relay.CrossCutting.csproj" />
+  </ItemGroup>
+
+</Project>

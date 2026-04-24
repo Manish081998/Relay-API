@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.WebTool.Application.Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Application\Relay.WebTool.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Domain\Relay.WebTool.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

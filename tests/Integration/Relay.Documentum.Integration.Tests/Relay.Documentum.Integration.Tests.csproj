@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Documentum.Integration.Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
+    <PackageReference Include="Testcontainers.MsSql" Version="3.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Host\Relay.Api\Relay.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Infrastructure\Relay.Documentum.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
