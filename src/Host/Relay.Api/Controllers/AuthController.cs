@@ -1,7 +1,5 @@
 using System.DirectoryServices.AccountManagement;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -9,18 +7,16 @@ using Relay.Api.Models.Auth;
 using Relay.Api.Services.Auth;
 using Relay.Api.Settings;
 using static Relay.Api.Routes.ApiRoutes;
-
 namespace Relay.Api.Controllers;
 
 [ApiController]
-
 public sealed class AuthController : ControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly RelaySettings _settings;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(ITokenService tokenService,IOptions<RelaySettings> settings,ILogger<AuthController> logger)
+    public AuthController(ITokenService tokenService, IOptions<RelaySettings> settings, ILogger<AuthController> logger)
     {
         _tokenService = tokenService;
         _settings = settings.Value;
@@ -33,8 +29,9 @@ public sealed class AuthController : ControllerBase
     public IActionResult GenerateToken([FromBody] LoginDto dto)
     {
         if (!ModelState.IsValid)
+        {
             return BadRequest(ModelState);
-
+        }
         var bypass = _settings.AppIdentitySettings.AppSettings.BypassLogin;
         var domain = _settings.AppIdentitySettings.ActiveDirectoryConfiguration.Domain;
 
@@ -61,10 +58,6 @@ public sealed class AuthController : ControllerBase
 
         var tokenResponse = _tokenService.GenerateAccessToken(dto.UserName, dto.UserName, roles);
 
-        // TODO: persist hashed refresh token to DB (see RefreshTokens schema below)
-        // var hash = HashToken(tokenResponse.RefreshToken!);
-        // await _refreshTokenRepo.StoreAsync(dto.UserName, hash, _settings.JsonWebTokenKeys.RefreshTokenExpiryDays);
-
         _logger.LogInformation("User {UserName} authenticated successfully", dto.UserName);
         return Ok(tokenResponse);
     }
@@ -75,7 +68,9 @@ public sealed class AuthController : ControllerBase
     public IActionResult RefreshToken([FromBody] RefreshTokenRequest request)
     {
         if (!ModelState.IsValid)
+        {
             return BadRequest(ModelState);
+        }
 
         ClaimsPrincipal? principal;
         try

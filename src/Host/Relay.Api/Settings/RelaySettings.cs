@@ -9,8 +9,8 @@ namespace Relay.Api.Settings;
 /// </summary>
 public sealed class RelaySettings
 {
-    public CorsSettings           Cors                { get; set; } = new();
-    public JwtSettings            JsonWebTokenKeys    { get; set; } = new();
-    public AppIdentitySettings    AppIdentitySettings { get; set; } = new();
-    public RelayFileLoggerOptions RelayLogging        { get; set; } = new();
+    public CorsSettings Cors { get; set; } = new();
+    public JwtSettings JsonWebTokenKeys { get; set; } = new();
+    public AppIdentitySettings AppIdentitySettings { get; set; } = new();
+    public RelayFileLoggerOptions RelayLogging { get; set; } = new();
 }

@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using Relay.Api.Settings;
+using Relay.CrossCutting.Email;
 using Relay.CrossCutting.ExceptionHandling;
 
 namespace Relay.Api.Extensions;
@@ -15,6 +16,7 @@ public static class FrameworkExtensions
         var relay = configuration.Get<RelaySettings>() ?? new RelaySettings();
 
         services.Configure<EmailSettingsOptions>(configuration.GetSection("AppIdentitySettings:EmailSettings"));
+        services.AddEmailService();
 
         services.AddCors(options =>
         {

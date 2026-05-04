@@ -1,6 +1,4 @@
 using System.Net;
-using System.Net.Mail;
-using System.Security.Claims;
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
@@ -9,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Relay.CrossCutting.Correlation;
+using Relay.CrossCutting.Email;
 
 namespace Relay.CrossCutting.ExceptionHandling;
 
@@ -16,15 +15,18 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
     private readonly ICorrelationContextAccessor _correlation;
+    private readonly IEmailService _emailService;
     private readonly EmailSettingsOptions _emailOptions;
 
     public GlobalExceptionHandler(
         ILogger<GlobalExceptionHandler> logger,
         ICorrelationContextAccessor correlation,
+        IEmailService emailService,
         IOptions<EmailSettingsOptions> emailOptions)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _correlation = correlation ?? throw new ArgumentNullException(nameof(correlation));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _emailOptions = emailOptions?.Value ?? throw new ArgumentNullException(nameof(emailOptions));
     }
 
@@ -58,46 +60,30 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         return true;
     }
 
-    private Task SendErrorEmailAsync(Exception exception, string method, string path, string userName, string correlationId, string clientIp, string origin, int statusCode)
+    private Task SendErrorEmailAsync(
+        Exception exception,
+        string method, string path,
+        string userName, string correlationId, string clientIp, string origin,
+        int statusCode)
     {
-        if (!_emailOptions.Enabled || string.IsNullOrWhiteSpace(_emailOptions.MailServer) || string.IsNullOrWhiteSpace(_emailOptions.DevTeamEmailID))
+        if (!_emailOptions.Enabled || string.IsNullOrWhiteSpace(_emailOptions.DevTeamEmailID))
             return Task.CompletedTask;
 
-        return Task.Run(async () =>
-        {
-            try
-            {
-                var subject = $"ProjectRelay Error - {method} {path} — {exception.GetType().Name}";
-                var body = BuildEmailBody(exception, method, path, userName, correlationId, clientIp, origin, statusCode);
+        var to = _emailOptions.DevTeamEmailID
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                using var mail = new MailMessage();
-                using var client = new SmtpClient(_emailOptions.MailServer, _emailOptions.Port)
-                {
-                    EnableSsl = _emailOptions.EnableSsl
-                };
+        var cc = string.IsNullOrWhiteSpace(_emailOptions.IECProjectMgr)
+            ? null
+            : _emailOptions.IECProjectMgr
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                mail.From = new MailAddress(_emailOptions.FromAddress);
-                mail.Subject = subject;
-                mail.Body = body;
-                mail.IsBodyHtml = true;
+        var request = new EmailRequest(
+            To: to,
+            Subject: $"ProjectRelay Error - {method} {path} — {exception.GetType().Name}",
+            Body: BuildEmailBody(exception, method, path, userName, correlationId, clientIp, origin, statusCode),
+            Cc: cc);
 
-                foreach (var address in _emailOptions.DevTeamEmailID
-                             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                {
-                    mail.To.Add(address);
-                }
-
-                if (!string.IsNullOrWhiteSpace(_emailOptions.IECProjectMgr))
-                    mail.CC.Add(_emailOptions.IECProjectMgr);
-
-                await client.SendMailAsync(mail);
-            }
-            catch (Exception ex)
-            {
-                // Never let email failure surface as another exception
-                _logger.LogWarning("Error email could not be sent: {Reason}", ex.Message);
-            }
-        });
+        return _emailService.SendAsync(request);
     }
 
     private static string BuildEmailBody(
