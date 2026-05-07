@@ -24,10 +24,15 @@ public static class ApiRoutes
     {
         public const string GetById = "api/WebTool/selections/{id:guid}";
     }
+    public static class Orders
+    {
+        public const string Search = "api/documentum/orders/search";
+    }
+
     public static class Authenticatication
     {
         public const string GenerateToken = "api/GenerateToken";
         public const string RefreshToken = "api/RefreshToken";
-        
+
     }
 }

@@ -14,6 +14,7 @@ public static class DocumentumInfrastructureModule
         services.AddScoped<IDocumentRepository, DocumentRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
         services.AddScoped<IDocumentumQueries, DocumentumQueriesAdapter>();
+        services.AddScoped<IEdgeOrderRepository, EdgeOrderRepository>();
         return services;
     }
 }
