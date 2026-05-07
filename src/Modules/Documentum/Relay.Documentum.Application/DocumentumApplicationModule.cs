@@ -3,6 +3,7 @@ using Relay.Documentum.Application.Commands.UpdateDocumentById;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
 using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
+using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
 
@@ -16,6 +17,7 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<GetDocumentByNameQuery, IReadOnlyList<DocumentDto>>, GetDocumentByNameQueryHandler>();
         services.AddScoped<ICommandHandler<UpdateDocumentByIdCommand, DocumentDto>, UpdateDocumentByIdCommandHandler>();
         services.AddScoped<IQueryHandler<GetAnnotationDetailsByIdQuery, AnnotationDetailsDto>, GetAnnotationDetailsByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
 
         return services;
     }
