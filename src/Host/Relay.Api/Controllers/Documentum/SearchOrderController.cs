@@ -28,6 +28,7 @@ public sealed class SearchOrderController : ControllerBase
             request.OrderSeq,
             request.RepPO,
             request.AccountNumber,
+            request.RepUserName,
             request.Brand,
             request.OrderDateFrom,
             request.OrderDateTo,

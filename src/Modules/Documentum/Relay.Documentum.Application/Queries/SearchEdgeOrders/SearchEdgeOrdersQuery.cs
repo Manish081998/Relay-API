@@ -7,6 +7,7 @@ public sealed record SearchEdgeOrdersQuery(
     int? OrderSeq,
     string? RepPO,
     string? AccountNumber,
+    string? RepUserName,
     string? Brand,
     DateTime? OrderDateFrom,
     DateTime? OrderDateTo,

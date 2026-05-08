@@ -10,6 +10,7 @@ public sealed record EdgeOrderDto(
     string? RepCustomer,
     string? RepSalesPerson,
     string? JobNumber,
+    string? RepUserName,
     string? Status,
     string TotalNet,
     DateTime? OrderRecdDate);
