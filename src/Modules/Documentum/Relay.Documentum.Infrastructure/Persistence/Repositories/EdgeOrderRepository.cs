@@ -23,6 +23,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         int? orderSeq,
         string? repPO,
         string? accountNumber,
+        string? repUserName,
         string? brand,
         DateTime? orderDateFrom,
         DateTime? orderDateTo,
@@ -41,6 +42,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
             command.Parameters.AddWithValue("@OrderSeq", (object?)orderSeq ?? DBNull.Value);
             command.Parameters.AddWithValue("@RepPO", (object?)repPO ?? DBNull.Value);
             command.Parameters.AddWithValue("@AccountNumber", (object?)accountNumber ?? DBNull.Value);
+            command.Parameters.AddWithValue("@RepUserName", (object?)repUserName ?? DBNull.Value);
             command.Parameters.AddWithValue("@Brand", (object?)brand ?? DBNull.Value);
             command.Parameters.AddWithValue("@OrderDateFrom", (object?)orderDateFrom ?? DBNull.Value);
             command.Parameters.AddWithValue("@OrderDateTo", (object?)orderDateTo ?? DBNull.Value);

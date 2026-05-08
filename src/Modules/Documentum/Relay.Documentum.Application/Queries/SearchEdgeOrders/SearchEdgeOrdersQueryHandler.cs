@@ -21,6 +21,7 @@ public sealed class SearchEdgeOrdersQueryHandler : IQueryHandler<SearchEdgeOrder
             query.OrderSeq,
             query.RepPO,
             query.AccountNumber,
+            query.RepUserName,
             query.Brand,
             query.OrderDateFrom,
             query.OrderDateTo,
