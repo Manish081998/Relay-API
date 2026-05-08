@@ -8,6 +8,7 @@ public interface IEdgeOrderRepository
         int? orderSeq,
         string? repPO,
         string? accountNumber,
+        string? repUserName,
         string? brand,
         DateTime? orderDateFrom,
         DateTime? orderDateTo,

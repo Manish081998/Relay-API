@@ -17,6 +17,7 @@ internal sealed class EdgeOrderDataModel
     public string? Status { get; init; }
     public string TotalNet { get; init; }
     public DateTime? OrderRecdDate { get; init; }
+    public string RepUserName { get; init; }
 
     public static EdgeOrderDataModel FromRecord(IDataRecord record) => new()
     {
@@ -29,13 +30,24 @@ internal sealed class EdgeOrderDataModel
         RepCustomer    = record.IsDBNull(record.GetOrdinal("repCustomer"))    ? null : record.GetString(record.GetOrdinal("repCustomer")),
         RepSalesPerson = record.IsDBNull(record.GetOrdinal("repSalesPerson")) ? null : record.GetString(record.GetOrdinal("repSalesPerson")),
         JobNumber      = record.IsDBNull(record.GetOrdinal("jobNumber"))      ? null : record.GetString(record.GetOrdinal("jobNumber")),
+        RepUserName =    record.IsDBNull(record.GetOrdinal("repUserName"))      ? null : record.GetString(record.GetOrdinal("repUserName")),
         Status         = record.IsDBNull(record.GetOrdinal("status"))         ? null : record.GetString(record.GetOrdinal("status")),
         TotalNet       = record.IsDBNull(record.GetOrdinal("totalNet"))       ? null   : record.GetString(record.GetOrdinal("totalNet")),
         OrderRecdDate  = record.IsDBNull(record.GetOrdinal("OrderRecdDate"))  ? null : record.GetDateTime(record.GetOrdinal("OrderRecdDate")),
     };
 
     public EdgeOrder ToDomain() => new(
-        OrderGuid, OrderSeq, Brand, RepPO, AccountNumber,
-        OrderDate, RepCustomer, RepSalesPerson, JobNumber, Status,
-        TotalNet, OrderRecdDate);
+        OrderGuid: OrderGuid,
+        OrderSeq: OrderSeq,
+        Brand: Brand,
+        RepPO: RepPO,
+        AccountNumber: AccountNumber,
+        OrderDate: OrderDate,
+        RepCustomer: RepCustomer,
+        RepUserName: RepUserName,
+        RepSalesPerson: RepSalesPerson,
+        JobNumber: JobNumber,
+        Status: Status,
+        TotalNet: TotalNet,
+        OrderRecdDate: OrderRecdDate);
 }

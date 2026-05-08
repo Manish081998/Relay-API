@@ -8,8 +8,10 @@ public sealed record EdgeOrder(
     string? AccountNumber,
     DateTime? OrderDate,
     string? RepCustomer,
+    string? RepUserName,
     string? RepSalesPerson,
     string? JobNumber,
     string? Status,
     string TotalNet,
     DateTime? OrderRecdDate);
+
