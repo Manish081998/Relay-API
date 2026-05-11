@@ -29,6 +29,18 @@ public static class ApiRoutes
         public const string Search = "api/documentum/orders/search";
     }
 
+    public static class DocumentumUsers
+    {
+        public const string GetAll = "api/documentum/users";
+        public const string Add    = "api/documentum/users";
+        public const string Update = "api/documentum/users/{id:guid}";
+    }
+
+    public static class DocumentumBrands
+    {
+        public const string GetAll = "api/documentum/GetAllBrands";
+    }
+
     public static class Authenticatication
     {
         public const string GenerateToken = "api/GenerateToken";
