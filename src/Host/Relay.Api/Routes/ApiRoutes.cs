@@ -29,6 +29,11 @@ public static class ApiRoutes
         public const string Search = "api/documentum/orders/search";
     }
 
+    public static class Intranet
+    {
+        public const string SearchEdgeOrders = "api/intranet/edge-orders/SearchEdgeOrders";
+    }
+
     public static class Authenticatication
     {
         public const string GenerateToken = "api/GenerateToken";
