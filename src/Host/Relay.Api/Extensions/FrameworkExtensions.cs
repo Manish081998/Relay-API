@@ -35,6 +35,8 @@ public static class FrameworkExtensions
         // Swagger with Bearer token lock icon
         services.AddSwaggerGen(options =>
         {
+            options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title       = "Project Relay API",

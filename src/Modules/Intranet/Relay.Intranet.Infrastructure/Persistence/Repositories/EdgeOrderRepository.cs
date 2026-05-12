@@ -1,0 +1,37 @@
+using System.Data;
+using Relay.Intranet.Domain.Aggregates;
+using Relay.Intranet.Domain.Repositories;
+using Relay.Intranet.Infrastructure.Persistence.DataModels;
+using Relay.Intranet.Infrastructure.Persistence.SqlQueries;
+using Relay.Infrastructure.Core.Data;
+
+namespace Relay.Intranet.Infrastructure.Persistence.Repositories;
+
+internal sealed class EdgeOrderRepository : IEdgeOrderRepository
+{
+    private const string Module = IntranetInfrastructureModule.ModuleName;
+
+    private readonly IDbExecutor _db;
+
+    public EdgeOrderRepository(IDbExecutor db)
+    {
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+    }
+
+    public Task<IReadOnlyList<EdgeOrder>> SearchAsync(string? emailId, string? releaseNumber, string? repPO, string? pcUserName, string? recordedDate, string? releaseName, CancellationToken cancellationToken = default) =>
+        _db.QueryAsync(
+            Module,
+            EdgeOrderQueries.Search,
+            r => EdgeOrderDataModel.FromRecord(r).ToAggregate(),
+            new
+            {
+                EmailID = emailId,
+                ReleaseNumber = releaseNumber,
+                RepPO = repPO,
+                PC_UserName = pcUserName,
+                RecordedDate = recordedDate,
+                ReleaseName = releaseName,
+            },
+            CommandType.StoredProcedure,
+            cancellationToken);
+}
