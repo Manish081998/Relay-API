@@ -1,13 +1,12 @@
 namespace Relay.Documentum.Domain.Aggregates;
 
 public sealed record User(
-    Guid UserId,
+    int UserId,
     string GlobalId,
-    string Password,
     string FirstName,
     string LastName,
     string EmailId,
-    Guid BrandId,
+    int BrandId,
     string? BrandName,
     bool IsActive,
     string CreatedBy,

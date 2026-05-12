@@ -5,12 +5,12 @@ namespace Relay.Documentum.Infrastructure.Persistence.DataModels;
 
 internal sealed class BrandDataModel
 {
-    public Guid BrandId { get; init; }
+    public int BrandId { get; init; }
     public string BrandName { get; init; } = default!;
 
     public static BrandDataModel FromRecord(IDataRecord record) => new()
     {
-        BrandId   = record.GetGuid(record.GetOrdinal("BrandId")),
+        BrandId   = record.GetInt32(record.GetOrdinal("BrandId")),
         BrandName = record.GetString(record.GetOrdinal("BrandName")),
     };
 

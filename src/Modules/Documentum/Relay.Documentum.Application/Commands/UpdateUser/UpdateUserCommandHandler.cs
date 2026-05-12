@@ -4,7 +4,7 @@ using Relay.SharedKernel.Application;
 
 namespace Relay.Documentum.Application.Commands.UpdateUser;
 
-public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Guid>
+public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, int>
 {
     private readonly IUserRepository _users;
 
@@ -13,12 +13,11 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         _users = users ?? throw new ArgumentNullException(nameof(users));
     }
 
-    public async Task<Result<Guid>> HandleAsync(UpdateUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<int>> HandleAsync(UpdateUserCommand command, CancellationToken cancellationToken = default)
     {
         var user = new User(
             UserId:      command.UserId,
             GlobalId:    string.Empty,
-            Password:    string.Empty,
             FirstName:   string.Empty,
             LastName:    string.Empty,
             EmailId:     null,
@@ -33,7 +32,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         var rowsAffected = await _users.UpdateAsync(user, cancellationToken);
 
         if (rowsAffected == 0)
-            return Result.Failure<Guid>(new AppError("User.NotFound", $"User '{command.UserId}' was not found."));
+            return Result.Failure<int>(new AppError("User.NotFound", $"User '{command.UserId}' was not found."));
 
         return Result.Success(command.UserId);
     }

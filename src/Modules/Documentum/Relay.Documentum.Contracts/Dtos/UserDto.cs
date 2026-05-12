@@ -1,11 +1,10 @@
 namespace Relay.Documentum.Contracts.Dtos;
 
 public sealed record UserDto(
-    Guid UserId,
+    int UserId,
     string GlobalId,
-    string Password,
     string? BrandName,
-    Guid BrandId,
+    int BrandId,
     string FirstName,
     string LastName,
     bool IsActive,

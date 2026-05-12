@@ -24,8 +24,8 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllUsersQuery, IReadOnlyList<UserDto>>, GetAllUsersQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllBrandsQuery, IReadOnlyList<BrandDto>>, GetAllBrandsQueryHandler>();
-        services.AddScoped<ICommandHandler<AddUserCommand, Guid>, AddUserCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateUserCommand, Guid>, UpdateUserCommandHandler>();
+        services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateUserCommand, int>, UpdateUserCommandHandler>();
 
         return services;
     }

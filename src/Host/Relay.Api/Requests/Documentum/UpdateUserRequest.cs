@@ -1,7 +1,7 @@
 namespace Relay.Api.Requests.Documentum;
 
 public sealed record UpdateUserRequest(
-    Guid userId,
-    Guid BrandId,
+    int userId,
+    int BrandId,
     bool IsActive,
     string ModifiedBy);

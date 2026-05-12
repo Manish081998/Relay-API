@@ -39,14 +39,13 @@ public sealed class DocumentumUsersController : ControllerBase
     }
 
     [HttpPost(ApiRoutes.DocumentumUsers.Add)]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Add([FromBody] AddUserRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _commands.SendAsync(
             new AddUserCommand(
                 request.GlobalId,
-                request.Password,
                 request.FirstName,
                 request.LastName,
                 request.EmailId,

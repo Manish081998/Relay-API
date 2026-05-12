@@ -33,7 +33,7 @@ public static class ApiRoutes
     {
         public const string GetAll = "api/documentum/users";
         public const string Add    = "api/documentum/users";
-        public const string Update = "api/documentum/users/{id:guid}";
+        public const string Update = "api/documentum/users";
     }
 
     public static class DocumentumBrands

@@ -6,7 +6,6 @@ internal static class UserQueries
         SELECT
             U.UserId,
             U.GlobalId,
-            U.Password,
 	        U.EmailId,
             U.BrandId,
             B.BrandName,
@@ -21,8 +20,9 @@ internal static class UserQueries
         INNER JOIN BrandMaster B ON U.BrandId = B.BrandId";
 
     public const string Insert = @"
-        INSERT INTO UserMaster (UserId, GlobalID, Password, FirstName, LastName, EmailID, BrandID, IsActive, CreatedBy, CreatedDate)
-        VALUES (@UserId, @GlobalId, @Password, @FirstName, @LastName, @EmailId, @BrandId, @IsActive, @CreatedBy, GETDATE())";
+        INSERT INTO UserMaster (GlobalID, FirstName, LastName, EmailID, BrandID, IsActive, CreatedBy, CreatedDate)
+        VALUES (@GlobalId, @FirstName, @LastName, @EmailId, @BrandId, @IsActive, @CreatedBy, GETDATE());
+        SELECT CAST(SCOPE_IDENTITY() AS INT)";
 
     public const string Update = @"
         UPDATE UserMaster

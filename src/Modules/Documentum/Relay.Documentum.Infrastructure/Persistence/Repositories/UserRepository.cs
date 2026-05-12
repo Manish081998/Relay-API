@@ -27,12 +27,11 @@ internal sealed class UserRepository : IUserRepository
         return rows.Select(r => r.ToDomain()).ToArray();
     }
 
-    public Task AddAsync(User user, CancellationToken cancellationToken = default) =>
-        _db.ExecuteAsync(Module, UserQueries.Insert, new
+    public async Task<int> AddAsync(User user, CancellationToken cancellationToken = default)
+    {
+        var id = await _db.ExecuteScalarAsync<int>(Module, UserQueries.Insert, new
         {
-            user.UserId,
             user.GlobalId,
-            user.Password,
             user.FirstName,
             user.LastName,
             user.EmailId,
@@ -40,6 +39,9 @@ internal sealed class UserRepository : IUserRepository
             user.IsActive,
             user.CreatedBy,
         }, cancellationToken: cancellationToken);
+
+        return id > 0 ? id : throw new InvalidOperationException("INSERT did not return a new UserId.");
+    }
 
     public Task<int> UpdateAsync(User user, CancellationToken cancellationToken = default) =>
         _db.ExecuteAsync(Module, UserQueries.Update, new

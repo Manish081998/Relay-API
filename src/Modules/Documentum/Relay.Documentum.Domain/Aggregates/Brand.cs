@@ -1,3 +1,3 @@
 namespace Relay.Documentum.Domain.Aggregates;
 
-public sealed record Brand(Guid BrandId, string BrandName);
+public sealed record Brand(int BrandId, string BrandName);

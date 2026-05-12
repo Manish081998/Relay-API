@@ -9,7 +9,6 @@ internal static class UserMappers
         new UserDto(
             UserId: user.UserId,
             GlobalId: user.GlobalId,
-            Password: user.Password,
             BrandName: user.BrandName,
             BrandId : user.BrandId,
             FirstName: user.FirstName,

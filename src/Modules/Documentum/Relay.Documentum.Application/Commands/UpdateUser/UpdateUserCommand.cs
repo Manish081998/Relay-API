@@ -3,7 +3,7 @@ using Relay.SharedKernel.Application;
 namespace Relay.Documentum.Application.Commands.UpdateUser;
 
 public sealed record UpdateUserCommand(
-    Guid UserId,
-    Guid BrandId,
+    int UserId,
+    int BrandId,
     bool IsActive,
-    string ModifiedBy) : ICommand<Guid>;
+    string ModifiedBy) : ICommand<int>;

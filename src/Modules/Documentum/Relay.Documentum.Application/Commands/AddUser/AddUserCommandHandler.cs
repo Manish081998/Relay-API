@@ -4,7 +4,7 @@ using Relay.SharedKernel.Application;
 
 namespace Relay.Documentum.Application.Commands.AddUser;
 
-public sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
+public sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, int>
 {
     private readonly IUserRepository _users;
 
@@ -13,27 +13,24 @@ public sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid
         _users = users ?? throw new ArgumentNullException(nameof(users));
     }
 
-    public async Task<Result<Guid>> HandleAsync(AddUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<int>> HandleAsync(AddUserCommand command, CancellationToken cancellationToken = default)
     {
-        var userId = Guid.NewGuid();
-
         var user = new User(
-            UserId:      userId,
-            GlobalId:    command.GlobalId,
-            Password:    command.Password,
-            FirstName:   command.FirstName,
-            LastName:    command.LastName,
-            EmailId:     command.EmailId,
-            BrandId:     command.BrandId,
-            BrandName:   null,
-            IsActive:    command.IsActive,
-            CreatedBy:   command.CreatedBy,
-            CreatedDate: DateTime.UtcNow,
-            ModifiedBy:  null,
+            UserId:       0,
+            GlobalId:     command.GlobalId,
+            FirstName:    command.FirstName,
+            LastName:     command.LastName,
+            EmailId:      command.EmailId,
+            BrandId:      command.BrandId,
+            BrandName:    null,
+            IsActive:     command.IsActive,
+            CreatedBy:    command.CreatedBy,
+            CreatedDate:  DateTime.UtcNow,
+            ModifiedBy:   null,
             ModifiedDate: null);
 
-        await _users.AddAsync(user, cancellationToken);
+        var newId = await _users.AddAsync(user, cancellationToken);
 
-        return Result.Success(userId);
+        return Result.Success(newId);
     }
 }
