@@ -1,5 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
+using Relay.Documentum.Application.Commands.AddUser;
 using Relay.Documentum.Application.Commands.UpdateDocumentById;
+using Relay.Documentum.Application.Commands.UpdateUser;
+using Relay.Documentum.Application.Queries.GetAllBrands;
+using Relay.Documentum.Application.Queries.GetAllUsers;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
 using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
@@ -18,6 +22,10 @@ public static class DocumentumApplicationModule
         services.AddScoped<ICommandHandler<UpdateDocumentByIdCommand, DocumentDto>, UpdateDocumentByIdCommandHandler>();
         services.AddScoped<IQueryHandler<GetAnnotationDetailsByIdQuery, AnnotationDetailsDto>, GetAnnotationDetailsByIdQueryHandler>();
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
+        services.AddScoped<IQueryHandler<GetAllUsersQuery, IReadOnlyList<UserDto>>, GetAllUsersQueryHandler>();
+        services.AddScoped<IQueryHandler<GetAllBrandsQuery, IReadOnlyList<BrandDto>>, GetAllBrandsQueryHandler>();
+        services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateUserCommand, int>, UpdateUserCommandHandler>();
 
         return services;
     }
