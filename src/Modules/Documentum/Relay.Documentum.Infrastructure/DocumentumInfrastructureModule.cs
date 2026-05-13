@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
 using Relay.Documentum.Contracts.Queries;
 using Relay.Documentum.Domain.Repositories;
 using Relay.Documentum.Infrastructure.Persistence.Repositories;
@@ -18,6 +19,7 @@ public static class DocumentumInfrastructureModule
         services.AddScoped<IEdgeOrderRepository, EdgeOrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IBrandMappingQueries, BrandRepository>();
         return services;
     }
 }

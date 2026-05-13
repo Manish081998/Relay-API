@@ -63,6 +63,35 @@ public interface IDbExecutor
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Executes a stored procedure or query that returns three sequential result sets,
+    /// mapping each with its own mapper function.
+    /// </summary>
+    Task<(IReadOnlyList<T1>, IReadOnlyList<T2>, IReadOnlyList<T3>)> QueryMultipleAsync<T1, T2, T3>(
+        string moduleName,
+        string sql,
+        Func<IDataRecord, T1> map1,
+        Func<IDataRecord, T2> map2,
+        Func<IDataRecord, T3> map3,
+        object? parameters = null,
+        CommandType commandType = CommandType.StoredProcedure,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a stored procedure or query that returns four sequential result sets,
+    /// mapping each with its own mapper function.
+    /// </summary>
+    Task<(IReadOnlyList<T1>, IReadOnlyList<T2>, IReadOnlyList<T3>, IReadOnlyList<T4>)> QueryMultipleAsync<T1, T2, T3, T4>(
+        string moduleName,
+        string sql,
+        Func<IDataRecord, T1> map1,
+        Func<IDataRecord, T2> map2,
+        Func<IDataRecord, T3> map3,
+        Func<IDataRecord, T4> map4,
+        object? parameters = null,
+        CommandType commandType = CommandType.StoredProcedure,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Begins a transaction bound to a fresh connection. The caller is responsible for
     /// committing or rolling back, and for disposing the returned scope.
     /// </summary>

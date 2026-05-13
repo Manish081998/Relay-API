@@ -107,4 +107,5 @@ public sealed class AuthController : ControllerBase
         // TODO: persist new hashed refresh token to DB
         return Ok(tokenResponse);
     }
+
 }

@@ -18,7 +18,7 @@ public sealed class AnnotationsController : ControllerBase
         _queries = queries ?? throw new ArgumentNullException(nameof(queries));
     }
 
-    [HttpGet(ApiRoutes.Annotations.GetById)]
+    [HttpGet(ApiRoutes.Documentum.Annotation.GetById)]
     [ProducesResponseType(typeof(AnnotationDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAnnotationDetailsById(int id, CancellationToken cancellationToken = default)

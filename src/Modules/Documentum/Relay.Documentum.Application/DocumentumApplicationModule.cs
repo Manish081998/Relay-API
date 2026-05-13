@@ -5,6 +5,7 @@ using Relay.Documentum.Application.Commands.UpdateUser;
 using Relay.Documentum.Application.Queries.GetAllBrands;
 using Relay.Documentum.Application.Queries.GetAllUsers;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
+using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
 using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
@@ -24,6 +25,7 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllUsersQuery, IReadOnlyList<UserDto>>, GetAllUsersQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllBrandsQuery, IReadOnlyList<BrandDto>>, GetAllBrandsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetBrandAndQueuesAndMappingQuery, BrandAndQueuesAndMappingDto>, GetBrandAndQueuesAndMappingQueryHandler>();
         services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateUserCommand, int>, UpdateUserCommandHandler>();
 

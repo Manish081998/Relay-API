@@ -1,6 +1,6 @@
 namespace Relay.Api.Services.Auth;
 
-internal sealed class AdUserDetails
+public sealed class AdUserDetails
 {
     public string GlobalId { get; init; } = string.Empty;
     public string? FirstName { get; init; }
@@ -10,11 +10,16 @@ internal sealed class AdUserDetails
     public string? Department { get; init; }
     public string? Office { get; init; }
     public string? Title { get; init; }
+    public int? BrandId { get; init; }
+    public int? QueueId { get; init; }
+    public int? RoleId { get; init; }
+    public string? CreatedBy { get; init; }
 }
 
-internal sealed record UserAuthStatus(string Status, string Message, string UserType);
+public sealed record UserAuthStatus(string Status, string Message, string UserType);
 
-internal sealed record UserRecord(
+public sealed record UserRecord(
+    int UserId,
     string GlobalId,
     string? FirstName,
     string? LastName,
