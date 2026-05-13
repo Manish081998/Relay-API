@@ -16,6 +16,7 @@ public static class IntranetInfrastructureModule
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IIntranetUserQueries, IntranetUserQueriesAdapter>();
+        services.AddScoped<IEdgeOrderRepository, EdgeOrderRepository>();
         return services;
     }
 }

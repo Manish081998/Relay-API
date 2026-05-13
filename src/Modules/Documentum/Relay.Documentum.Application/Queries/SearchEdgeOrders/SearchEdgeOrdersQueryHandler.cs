@@ -14,6 +14,12 @@ public sealed class SearchEdgeOrdersQueryHandler : IQueryHandler<SearchEdgeOrder
         _orders = orders ?? throw new ArgumentNullException(nameof(orders));
     }
 
+    /// <summary>
+    /// This method search the orders on the basis of request.
+    /// </summary>
+    /// <param name="query">Dynamic query with search field</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<Result<PagedResultDto<EdgeOrderDto>>> HandleAsync(
         SearchEdgeOrdersQuery query, CancellationToken cancellationToken = default)
     {

@@ -2,7 +2,7 @@ namespace Relay.Api.Models.Auth;
 
 public sealed class TokenResponse
 {
-    public string   AccessToken   { get; set; } = string.Empty;
-    public DateTime ExpiresAt     { get; set; }
-    public string?  RefreshToken  { get; set; }
+    public string AccessToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public string? RefreshToken { get; set; }
 }

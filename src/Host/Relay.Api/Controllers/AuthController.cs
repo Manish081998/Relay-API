@@ -7,34 +7,37 @@ using Relay.Api.Models.Auth;
 using Relay.Api.Services.Auth;
 using Relay.Api.Settings;
 using static Relay.Api.Routes.ApiRoutes;
+
 namespace Relay.Api.Controllers;
 
 [ApiController]
 public sealed class AuthController : ControllerBase
 {
     private readonly ITokenService _tokenService;
+    private readonly IUserLoginService _userLoginService;
     private readonly RelaySettings _settings;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(ITokenService tokenService, IOptions<RelaySettings> settings, ILogger<AuthController> logger)
+    public AuthController(ITokenService tokenService, IUserLoginService userLoginService, IOptions<RelaySettings> settings, ILogger<AuthController> logger)
     {
         _tokenService = tokenService;
+        _userLoginService = userLoginService;
         _settings = settings.Value;
         _logger = logger;
     }
 
-    /// <summary>POST /api/authenticateUser — returns JWT access token + refresh token.</summary>
+    /// <summary>POST /api/authenticateUser — validates AD credentials, authorizes via DB, returns JWT + full user profile.</summary>
     [HttpPost(Authenticatication.GenerateToken)]
     [AllowAnonymous]
-    public IActionResult GenerateToken([FromBody] LoginDto dto)
+    public async Task<IActionResult> GenerateToken([FromBody] LoginDto dto, CancellationToken ct = default)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
+
         var bypass = _settings.AppIdentitySettings.AppSettings.BypassLogin;
         var domain = _settings.AppIdentitySettings.ActiveDirectoryConfiguration.Domain;
 
+        // Step 1: Validate credentials against Active Directory
         if (!bypass)
         {
             try
@@ -53,13 +56,27 @@ public sealed class AuthController : ControllerBase
             }
         }
 
-        // TODO: load user roles from DB here; hardcoded for initial setup
-        var roles = new[] { "User" };
+        // Step 2: DB authorization check + AD profile fetch
+        var (user, errorMessage) = await _userLoginService.AuthorizeAndGetUserAsync(dto.UserName, ct);
+        if (user is null)
+        {
+            _logger.LogWarning("Authorization failed for {UserName}: {Message}", dto.UserName, errorMessage);
+            return Unauthorized(new { message = errorMessage ?? "Access denied." });
+        }
 
+        // Step 3: Generate JWT using the role resolved from the DB
+        var roles = new[] { user.UserType };
         var tokenResponse = _tokenService.GenerateAccessToken(dto.UserName, dto.UserName, roles);
 
-        _logger.LogInformation("User {UserName} authenticated successfully", dto.UserName);
-        return Ok(tokenResponse);
+        _logger.LogInformation("User {UserName} authenticated successfully as {UserType}", dto.UserName, user.UserType);
+
+        return Ok(new AuthLoginResponse
+        {
+            AccessToken = tokenResponse.AccessToken,
+            ExpiresAt = tokenResponse.ExpiresAt,
+            RefreshToken = tokenResponse.RefreshToken,
+            User = user
+        });
     }
 
     /// <summary>POST /api/refresh — rotate refresh token, return new access + refresh token pair.</summary>
@@ -68,9 +85,7 @@ public sealed class AuthController : ControllerBase
     public IActionResult RefreshToken([FromBody] RefreshTokenRequest request)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
 
         ClaimsPrincipal? principal;
         try
@@ -83,10 +98,10 @@ public sealed class AuthController : ControllerBase
         }
 
         var userName = principal.Identity?.Name ?? string.Empty;
-
         var roles = principal.Claims
-                               .Where(c => c.Type == ClaimTypes.Role)
-                               .Select(c => c.Value);
+                                .Where(c => c.Type == ClaimTypes.Role)
+                                .Select(c => c.Value);
+
         var tokenResponse = _tokenService.GenerateAccessToken(userName, userName, roles);
 
         // TODO: persist new hashed refresh token to DB

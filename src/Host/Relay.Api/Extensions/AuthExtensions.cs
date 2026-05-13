@@ -68,8 +68,10 @@ public static class AuthExtensions
             options.AddPolicy("ActiveEmployee", p => p.RequireClaim("employment_status", "active"));
         });
 
-        // Register TokenService
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserAuthRepository, UserAuthRepository>();
+        services.AddScoped<IAdUserService, AdUserService>();
+        services.AddScoped<IUserLoginService, UserLoginService>();
 
         return services;
     }

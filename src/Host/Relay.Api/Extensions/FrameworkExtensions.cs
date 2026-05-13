@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 using Relay.Api.Settings;
 using Relay.CrossCutting.Email;
@@ -34,6 +35,8 @@ public static class FrameworkExtensions
         // Swagger with Bearer token lock icon
         services.AddSwaggerGen(options =>
         {
+            options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title       = "Project Relay API",
@@ -63,6 +66,36 @@ public static class FrameworkExtensions
                     },
                     Array.Empty<string>()
                 }
+            });
+
+            // Use full namespace as schema ID to prevent conflicts when multiple modules
+            // define types with the same simple name (e.g. Intranet.UserDto vs Documentum.UserDto).
+            options.CustomSchemaIds(type =>
+            {
+                if (!type.IsGenericType)
+                    return type.FullName!.Replace("+", ".");
+
+                var baseName = type.GetGenericTypeDefinition().FullName!.Split('`')[0];
+                var argNames = string.Join("_", type.GetGenericArguments().Select(a => a.Name));
+                return $"{baseName}_{argNames}";
+            });
+
+            // Map controller names to readable Swagger section tags.
+            // Needed because DocumentumUsersController must differ from the Intranet UsersController
+            // in C# to avoid schema ID collisions, but should still show as "Users" in Swagger.
+            options.TagActionsBy(api =>
+            {
+                if (api.ActionDescriptor is ControllerActionDescriptor cad)
+                {
+                    var tag = cad.ControllerName switch
+                    {
+                        "DocumentumUsers"  => "Users",
+                        "DocumentumBrands" => "Brands",
+                        _                  => cad.ControllerName
+                    };
+                    return new[] { tag };
+                }
+                return new[] { api.HttpMethod ?? "Unknown" };
             });
         });
 
