@@ -4,12 +4,17 @@ using Relay.SharedKernel.Application;
 namespace Relay.Documentum.Application.Queries.SearchEdgeOrders;
 
 public sealed record SearchEdgeOrdersQuery(
-    int? OrderSeq,
+    string? SalesOrderNumber,
     string? RepPO,
     string? AccountNumber,
-    string? RepUserName,
+    string? ProductType,
+    string? Region,
+    string? Priority,
     string? Brand,
-    DateTime? OrderDateFrom,
-    DateTime? OrderDateTo,
+    DateTime? CaptureDateFrom,
+    DateTime? CaptureDateTo,
+    string? JobName,
+    string? QueueName,
+    string? PackageOwner,
     int PageNumber,
     int PageSize) : IQuery<PagedResultDto<EdgeOrderDto>>;

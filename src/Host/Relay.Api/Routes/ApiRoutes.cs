@@ -27,6 +27,9 @@ public static class ApiRoutes
     public static class Orders
     {
         public const string Search = "api/documentum/orders/search";
+        public const string Brands = "api/documentum/orders/brands";
+        public const string ProductTypes = "api/documentum/orders/product-types";
+        public const string QueuesByBrand = "api/documentum/orders/queues";
     }
 
     public static class DocumentumUsers

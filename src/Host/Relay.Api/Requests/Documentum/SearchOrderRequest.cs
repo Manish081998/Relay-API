@@ -1,12 +1,17 @@
 namespace Relay.Api.Requests.Documentum;
 
 public sealed record SearchOrderRequest(
-    int? OrderSeq = null,
+    string? SalesOrderNumber = null,
     string? RepPO = null,
     string? AccountNumber = null,
-    string? RepUserName = null,
+    string? ProductType = null,
+    string? Region = null,
+    string? Priority = null,
     string? Brand = null,
-    DateTime? OrderDateFrom = null,
-    DateTime? OrderDateTo = null,
+    DateTime? CaptureDateFrom = null,
+    DateTime? CaptureDateTo = null,
+    string? JobName = null,
+    string? QueueName = null,
+    string? PackageOwner = null,
     int PageNumber = 1,
     int PageSize = 50);

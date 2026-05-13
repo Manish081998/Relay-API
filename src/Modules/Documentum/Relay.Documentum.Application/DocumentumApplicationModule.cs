@@ -5,8 +5,11 @@ using Relay.Documentum.Application.Commands.UpdateUser;
 using Relay.Documentum.Application.Queries.GetAllBrands;
 using Relay.Documentum.Application.Queries.GetAllUsers;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
+using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
+using Relay.Documentum.Application.Queries.GetProductTypes;
+using Relay.Documentum.Application.Queries.GetQueuesByBrand;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -26,6 +29,10 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<GetAllBrandsQuery, IReadOnlyList<BrandDto>>, GetAllBrandsQueryHandler>();
         services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateUserCommand, int>, UpdateUserCommandHandler>();
+        services.AddScoped<IQueryHandler<GetBrandsQuery, IReadOnlyList<string>>, GetBrandsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<string>>, GetProductTypesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetQueuesByBrandQuery, IReadOnlyList<string>>, GetQueuesByBrandQueryHandler>();
+
 
         return services;
     }
