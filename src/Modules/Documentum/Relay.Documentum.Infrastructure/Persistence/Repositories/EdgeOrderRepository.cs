@@ -20,13 +20,18 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
     }
 
     public async Task<(IReadOnlyList<EdgeOrder> Items, int TotalCount)> SearchAsync(
-        int? orderSeq,
+        string? salesOrderNumber,
         string? repPO,
         string? accountNumber,
-        string? repUserName,
+        string? productType,
+        string? region,
+        string? priority,
         string? brand,
-        DateTime? orderDateFrom,
-        DateTime? orderDateTo,
+        DateTime? captureDateFrom,
+        DateTime? captureDateTo,
+        string? jobName,
+        string? queueName,
+        string? packageOwner,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -39,13 +44,18 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
                 CommandType = CommandType.StoredProcedure
             };
 
-            command.Parameters.AddWithValue("@OrderSeq", (object?)orderSeq ?? DBNull.Value);
+            command.Parameters.AddWithValue("@SalesOrderNumber", (object?)salesOrderNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@RepPO", (object?)repPO ?? DBNull.Value);
             command.Parameters.AddWithValue("@AccountNumber", (object?)accountNumber ?? DBNull.Value);
-            command.Parameters.AddWithValue("@RepUserName", (object?)repUserName ?? DBNull.Value);
+            command.Parameters.AddWithValue("@ProductType", (object?)productType ?? DBNull.Value);
+            command.Parameters.AddWithValue("@Region", (object?)region ?? DBNull.Value);
+            command.Parameters.AddWithValue("@Priority", (object?)priority ?? DBNull.Value);
             command.Parameters.AddWithValue("@Brand", (object?)brand ?? DBNull.Value);
-            command.Parameters.AddWithValue("@OrderDateFrom", (object?)orderDateFrom ?? DBNull.Value);
-            command.Parameters.AddWithValue("@OrderDateTo", (object?)orderDateTo ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CaptureDateFrom", (object?)captureDateFrom ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CaptureDateTo", (object?)captureDateTo ?? DBNull.Value);
+            command.Parameters.AddWithValue("@JobName", (object?)jobName ?? DBNull.Value);
+            command.Parameters.AddWithValue("@QueueName", (object?)queueName ?? DBNull.Value);
+            command.Parameters.AddWithValue("@PackageOwner", (object?)packageOwner ?? DBNull.Value);
             command.Parameters.AddWithValue("@PageNumber", pageNumber);
             command.Parameters.AddWithValue("@PageSize", pageSize);
 
@@ -71,5 +81,48 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
             throw;
         }
+    }
+
+    public async Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetDistinctBrands, (SqlConnection)connection);
+
+        var brands = new List<string>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            brands.Add(reader.GetString(0));
+        }
+        return brands;
+    }
+
+    public async Task<IReadOnlyList<string>> GetProductTypesAsync(CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetProductTypes, (SqlConnection)connection);
+
+        var types = new List<string>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            types.Add(reader.GetString(0));
+        }
+        return types;
+    }
+
+    public async Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetQueuesByBrand, (SqlConnection)connection);
+        command.Parameters.AddWithValue("@BrandName", brandName);
+
+        var queues = new List<string>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            queues.Add(reader.GetString(0));
+        }
+        return queues;
     }
 }

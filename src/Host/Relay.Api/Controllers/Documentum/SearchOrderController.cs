@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Relay.Api.Requests.Documentum;
 using Relay.Api.Routes;
+using Relay.Documentum.Application.Queries.GetBrands;
+using Relay.Documentum.Application.Queries.GetProductTypes;
+using Relay.Documentum.Application.Queries.GetQueuesByBrand;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -25,17 +28,56 @@ public sealed class SearchOrderController : ControllerBase
     public async Task<IActionResult> Search([FromQuery] SearchOrderRequest request, CancellationToken cancellationToken = default)
     {
         var query = new SearchEdgeOrdersQuery(
-            request.OrderSeq,
+            request.SalesOrderNumber,
             request.RepPO,
             request.AccountNumber,
-            request.RepUserName,
+            request.ProductType,
+            request.Region,
+            request.Priority,
             request.Brand,
-            request.OrderDateFrom,
-            request.OrderDateTo,
+            request.CaptureDateFrom,
+            request.CaptureDateTo,
+            request.JobName,
+            request.QueueName,
+            request.PackageOwner,
             request.PageNumber,
             request.PageSize);
 
         var result = await _queries.SendAsync<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Orders.Brands)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBrands(CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetBrandsQuery, IReadOnlyList<string>>(new GetBrandsQuery(), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Orders.ProductTypes)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProductTypes(CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetProductTypesQuery, IReadOnlyList<string>>(new GetProductTypesQuery(), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Orders.QueuesByBrand)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetQueuesByBrand([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetQueuesByBrandQuery, IReadOnlyList<string>>(
+            new GetQueuesByBrandQuery(brandName), cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

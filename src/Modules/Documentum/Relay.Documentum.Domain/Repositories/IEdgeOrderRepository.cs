@@ -5,14 +5,23 @@ namespace Relay.Documentum.Domain.Repositories;
 public interface IEdgeOrderRepository
 {
     Task<(IReadOnlyList<EdgeOrder> Items, int TotalCount)> SearchAsync(
-        int? orderSeq,
+        string? salesOrderNumber,
         string? repPO,
         string? accountNumber,
-        string? repUserName,
+        string? productType,
+        string? region,
+        string? priority,
         string? brand,
-        DateTime? orderDateFrom,
-        DateTime? orderDateTo,
+        DateTime? captureDateFrom,
+        DateTime? captureDateTo,
+        string? jobName,
+        string? queueName,
+        string? packageOwner,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetProductTypesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default);
 }

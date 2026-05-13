@@ -24,13 +24,18 @@ public sealed class SearchEdgeOrdersQueryHandler : IQueryHandler<SearchEdgeOrder
         SearchEdgeOrdersQuery query, CancellationToken cancellationToken = default)
     {
         var (items, totalCount) = await _orders.SearchAsync(
-            query.OrderSeq,
+            query.SalesOrderNumber,
             query.RepPO,
             query.AccountNumber,
-            query.RepUserName,
+            query.ProductType,
+            query.Region,
+            query.Priority,
             query.Brand,
-            query.OrderDateFrom,
-            query.OrderDateTo,
+            query.CaptureDateFrom,
+            query.CaptureDateTo,
+            query.JobName,
+            query.QueueName,
+            query.PackageOwner,
             query.PageNumber,
             query.PageSize,
             cancellationToken);
