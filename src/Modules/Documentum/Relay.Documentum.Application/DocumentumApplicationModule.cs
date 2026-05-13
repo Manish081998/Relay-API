@@ -6,6 +6,7 @@ using Relay.Documentum.Application.Queries.GetAllBrands;
 using Relay.Documentum.Application.Queries.GetAllUsers;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
 using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
+using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
 using Relay.Documentum.Application.Queries.GetProductTypes;

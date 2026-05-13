@@ -50,7 +50,7 @@ public sealed class SearchOrderController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    [HttpGet(ApiRoutes.Orders.Brands)]
+    [HttpGet(ApiRoutes.Documentum.Orders.Brands)]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBrands(CancellationToken cancellationToken = default)
     {
@@ -61,7 +61,7 @@ public sealed class SearchOrderController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    [HttpGet(ApiRoutes.Orders.ProductTypes)]
+    [HttpGet(ApiRoutes.Documentum.Orders.ProductTypes)]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetProductTypes(CancellationToken cancellationToken = default)
     {
@@ -72,7 +72,7 @@ public sealed class SearchOrderController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    [HttpGet(ApiRoutes.Orders.QueuesByBrand)]
+    [HttpGet(ApiRoutes.Documentum.Orders.QueuesByBrand)]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetQueuesByBrand([FromQuery] string brandName, CancellationToken cancellationToken = default)
     {
