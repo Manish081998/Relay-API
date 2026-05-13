@@ -10,7 +10,7 @@ internal sealed class AdUserService : IAdUserService
 
     public AdUserService(IOptions<RelaySettings> settings)
     {
-        _ldapRoot = "LDAP://" + settings.Value.AppIdentitySettings.ActiveDirectoryConfiguration.Domain;
+        _ldapRoot = "GC://" + settings.Value.AppIdentitySettings.ActiveDirectoryConfiguration.Domain;
     }
 
     public Task<AdUserDetails?> GetUserDetailsAsync(string globalId) =>

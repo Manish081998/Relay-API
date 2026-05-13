@@ -23,7 +23,7 @@ public sealed class DocumentsController : ControllerBase
         _commands = commands ?? throw new ArgumentNullException(nameof(commands));
     }
 
-    [HttpGet(ApiRoutes.Documents.GetById)]
+    [HttpGet(ApiRoutes.Documentum.Documents.GetById)]
     [ProducesResponseType(typeof(DocumentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -34,7 +34,7 @@ public sealed class DocumentsController : ControllerBase
             : NotFound();
     }
 
-    [HttpGet(ApiRoutes.Documents.Search)]
+    [HttpGet(ApiRoutes.Documentum.Documents.Search)]
     [ProducesResponseType(typeof(IReadOnlyList<DocumentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetByName([FromQuery] string name, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ public sealed class DocumentsController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    [HttpPut(ApiRoutes.Documents.UpdateById)]
+    [HttpPut(ApiRoutes.Documentum.Documents.UpdateById)]
     [ProducesResponseType(typeof(DocumentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

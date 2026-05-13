@@ -11,7 +11,7 @@ internal static class UserAuthQueries
 {
     public const string GetAuthStatus = "USP_UserAuthorizedStatus";
     public const string AddModifyUser = "USP_AddModifyUser";
-    
+
 }
 
 internal sealed class UserAuthRepository : IUserAuthRepository
@@ -39,12 +39,11 @@ internal sealed class UserAuthRepository : IUserAuthRepository
             Module,
             UserAuthQueries.AddModifyUser,
             r => new UserRecord(
-                
+                UserId: r.GetInt32(r.GetOrdinal("UserId")),
                 GlobalId: r.GetString(r.GetOrdinal("GlobalId")),
                 FirstName: r.IsDBNull(r.GetOrdinal("FirstName")) ? null : r.GetString(r.GetOrdinal("FirstName")),
                 LastName: r.IsDBNull(r.GetOrdinal("LastName")) ? null : r.GetString(r.GetOrdinal("LastName")),
                 EmailId: r.IsDBNull(r.GetOrdinal("EmailId")) ? null : r.GetString(r.GetOrdinal("EmailId"))
-                
             ),
             new
             {
@@ -52,10 +51,12 @@ internal sealed class UserAuthRepository : IUserAuthRepository
                 FirstName = details.FirstName,
                 LastName = details.LastName,
                 EmailId = details.EmailId,
-                
+                BrandID = details.BrandId,
+                QueueId = details.QueueId,
+                RoleId = details.RoleId
             },
             CommandType.StoredProcedure,
             ct);
 
-    
+
 }

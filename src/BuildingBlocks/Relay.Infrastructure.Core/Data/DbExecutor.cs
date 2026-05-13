@@ -89,6 +89,75 @@ public sealed class DbExecutor : IDbExecutor
         return raw is null or DBNull ? default : (T)Convert.ChangeType(raw, typeof(T));
     }
 
+    public async Task<(IReadOnlyList<T1>, IReadOnlyList<T2>, IReadOnlyList<T3>)> QueryMultipleAsync<T1, T2, T3>(
+        string moduleName, string sql,
+        Func<IDataRecord, T1> map1, Func<IDataRecord, T2> map2, Func<IDataRecord, T3> map3,
+        object? parameters = null, CommandType commandType = CommandType.StoredProcedure,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(map1);
+        ArgumentNullException.ThrowIfNull(map2);
+        ArgumentNullException.ThrowIfNull(map3);
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(moduleName, cancellationToken);
+        await using var command = CreateCommand(connection, sql, parameters, commandType, transaction: null);
+
+        return await TimedAsync(moduleName, sql, async () =>
+        {
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            var r1 = new List<T1>();
+            while (await reader.ReadAsync(cancellationToken)) r1.Add(map1(reader));
+
+            await reader.NextResultAsync(cancellationToken);
+            var r2 = new List<T2>();
+            while (await reader.ReadAsync(cancellationToken)) r2.Add(map2(reader));
+
+            await reader.NextResultAsync(cancellationToken);
+            var r3 = new List<T3>();
+            while (await reader.ReadAsync(cancellationToken)) r3.Add(map3(reader));
+
+            return ((IReadOnlyList<T1>)r1, (IReadOnlyList<T2>)r2, (IReadOnlyList<T3>)r3);
+        });
+    }
+
+    public async Task<(IReadOnlyList<T1>, IReadOnlyList<T2>, IReadOnlyList<T3>, IReadOnlyList<T4>)> QueryMultipleAsync<T1, T2, T3, T4>(
+        string moduleName, string sql,
+        Func<IDataRecord, T1> map1, Func<IDataRecord, T2> map2, Func<IDataRecord, T3> map3, Func<IDataRecord, T4> map4,
+        object? parameters = null, CommandType commandType = CommandType.StoredProcedure,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(map1);
+        ArgumentNullException.ThrowIfNull(map2);
+        ArgumentNullException.ThrowIfNull(map3);
+        ArgumentNullException.ThrowIfNull(map4);
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(moduleName, cancellationToken);
+        await using var command = CreateCommand(connection, sql, parameters, commandType, transaction: null);
+
+        return await TimedAsync(moduleName, sql, async () =>
+        {
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            var r1 = new List<T1>();
+            while (await reader.ReadAsync(cancellationToken)) r1.Add(map1(reader));
+
+            await reader.NextResultAsync(cancellationToken);
+            var r2 = new List<T2>();
+            while (await reader.ReadAsync(cancellationToken)) r2.Add(map2(reader));
+
+            await reader.NextResultAsync(cancellationToken);
+            var r3 = new List<T3>();
+            while (await reader.ReadAsync(cancellationToken)) r3.Add(map3(reader));
+
+            await reader.NextResultAsync(cancellationToken);
+            var r4 = new List<T4>();
+            while (await reader.ReadAsync(cancellationToken)) r4.Add(map4(reader));
+
+            return ((IReadOnlyList<T1>)r1, (IReadOnlyList<T2>)r2, (IReadOnlyList<T3>)r3, (IReadOnlyList<T4>)r4);
+        });
+    }
+
     public async Task<IDbTransactionScope> BeginTransactionAsync(
         string moduleName, IsolationLevel isolation = IsolationLevel.ReadCommitted,
         CancellationToken cancellationToken = default)

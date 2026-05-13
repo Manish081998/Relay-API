@@ -22,7 +22,7 @@ public sealed class SearchOrderController : ControllerBase
         _queries = queries ?? throw new ArgumentNullException(nameof(queries));
     }
 
-    [HttpGet(ApiRoutes.Orders.Search)]
+    [HttpGet(ApiRoutes.Documentum.SearchOrder.Search)]
     [ProducesResponseType(typeof(PagedResultDto<EdgeOrderDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Search([FromQuery] SearchOrderRequest request, CancellationToken cancellationToken = default)
