@@ -13,5 +13,6 @@ public sealed record SearchOrderRequest(
     string? JobName = null,
     string? QueueName = null,
     string? PackageOwner = null,
+    string? RepName = null,
     int PageNumber = 1,
     int PageSize = 50);
