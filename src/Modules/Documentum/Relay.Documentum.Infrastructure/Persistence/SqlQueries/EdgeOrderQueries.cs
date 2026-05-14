@@ -14,4 +14,14 @@ internal static class EdgeOrderQueries
           AND bqm.IsActive = 1
           AND q.IsActive = 1
         ORDER BY q.QueueName";
+
+    public const string GetRouteToDepartmentQueues = @"
+        SELECT q.QueueName
+        FROM dbo.QueueMaster q
+        INNER JOIN dbo.BrandQueueMapping bqm ON bqm.QueueId = q.QueueId
+        INNER JOIN dbo.BrandMaster b ON b.BrandId = bqm.BrandId
+        WHERE b.BrandName = @BrandName
+          AND bqm.IsActive = 1
+          AND q.IsActive = 1
+        ORDER BY q.QueueName";
 }

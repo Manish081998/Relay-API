@@ -18,5 +18,15 @@ internal static class EdgeOrderMappers
      RepUserName: order.RepUserName,
      Status: order.Status,
      TotalNet: order.TotalNet,
-     OrderRecdDate: order.OrderRecdDate);
+     OrderRecdDate: order.OrderRecdDate,
+     SalesOrderNumber: order.SalesOrderNumber,
+     Priority: order.Priority,
+     RepName: order.RepName,
+     QueueName: order.QueueName,
+     ProductType: order.ProductType,
+     Region: order.Region,
+     JobName: order.JobName,
+     CreatedDate: order.CreatedDate,
+     CompletionDate: order.CompletionDate,
+     PackageOwner: order.PackageOwner);
 }

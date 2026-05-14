@@ -30,6 +30,7 @@ public static class ApiRoutes
             public const string Brands = "api/documentum/orders/brands";
             public const string ProductTypes = "api/documentum/orders/product-types";
             public const string QueuesByBrand = "api/documentum/orders/queues";
+            public const string RouteToDepartment = "api/documentum/orders/route-to-department";
         }
     }
     public static class Selections

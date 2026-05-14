@@ -13,5 +13,14 @@ public sealed record EdgeOrder(
     string? JobNumber,
     string? Status,
     string TotalNet,
-    DateTime? OrderRecdDate);
-
+    DateTime? OrderRecdDate,
+    string? SalesOrderNumber,
+    string? Priority,
+    string? RepName,
+    string? QueueName,
+    string? ProductType,
+    string? Region,
+    string? JobName,
+    DateTime? CreatedDate,
+    DateTime? CompletionDate,
+    string? PackageOwner);

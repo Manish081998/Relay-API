@@ -32,6 +32,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         string? jobName,
         string? queueName,
         string? packageOwner,
+        string? repName,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -56,6 +57,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
             command.Parameters.AddWithValue("@JobName", (object?)jobName ?? DBNull.Value);
             command.Parameters.AddWithValue("@QueueName", (object?)queueName ?? DBNull.Value);
             command.Parameters.AddWithValue("@PackageOwner", (object?)packageOwner ?? DBNull.Value);
+            command.Parameters.AddWithValue("@RepName", (object?)repName ?? DBNull.Value);
             command.Parameters.AddWithValue("@PageNumber", pageNumber);
             command.Parameters.AddWithValue("@PageSize", pageSize);
 
@@ -115,6 +117,21 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
         await using var command = new SqlCommand(EdgeOrderQueries.GetQueuesByBrand, (SqlConnection)connection);
+        command.Parameters.AddWithValue("@BrandName", brandName);
+
+        var queues = new List<string>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            queues.Add(reader.GetString(0));
+        }
+        return queues;
+    }
+
+    public async Task<IReadOnlyList<string>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetRouteToDepartmentQueues, (SqlConnection)connection);
         command.Parameters.AddWithValue("@BrandName", brandName);
 
         var queues = new List<string>();

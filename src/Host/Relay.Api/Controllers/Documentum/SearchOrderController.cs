@@ -5,6 +5,7 @@ using Relay.Api.Routes;
 using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
+using Relay.Documentum.Application.Queries.GetRouteToDepartment;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -40,6 +41,7 @@ public sealed class SearchOrderController : ControllerBase
             request.JobName,
             request.QueueName,
             request.PackageOwner,
+            request.RepName,
             request.PageNumber,
             request.PageSize);
 
@@ -78,6 +80,18 @@ public sealed class SearchOrderController : ControllerBase
     {
         var result = await _queries.SendAsync<GetQueuesByBrandQuery, IReadOnlyList<string>>(
             new GetQueuesByBrandQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.RouteToDepartment)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRouteToDepartment([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetRouteToDepartmentQuery, IReadOnlyList<string>>(
+            new GetRouteToDepartmentQuery(brandName), cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

@@ -11,6 +11,7 @@ using Relay.Documentum.Application.Queries.GetDocumentById;
 using Relay.Documentum.Application.Queries.GetDocumentByName;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
+using Relay.Documentum.Application.Queries.GetRouteToDepartment;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -34,7 +35,7 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<GetBrandsQuery, IReadOnlyList<string>>, GetBrandsQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<string>>, GetProductTypesQueryHandler>();
         services.AddScoped<IQueryHandler<GetQueuesByBrandQuery, IReadOnlyList<string>>, GetQueuesByBrandQueryHandler>();
-
+        services.AddScoped<IQueryHandler<GetRouteToDepartmentQuery, IReadOnlyList<string>>, GetRouteToDepartmentQueryHandler>();
 
         return services;
     }

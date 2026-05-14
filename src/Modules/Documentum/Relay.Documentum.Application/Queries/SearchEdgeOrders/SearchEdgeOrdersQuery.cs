@@ -16,5 +16,6 @@ public sealed record SearchEdgeOrdersQuery(
     string? JobName,
     string? QueueName,
     string? PackageOwner,
+    string? RepName,
     int PageNumber,
     int PageSize) : IQuery<PagedResultDto<EdgeOrderDto>>;
