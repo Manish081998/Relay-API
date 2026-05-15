@@ -15,6 +15,15 @@ internal static class EdgeOrderQueries
           AND q.IsActive = 1
         ORDER BY q.QueueName";
 
+    public const string GetByOrderSeq = @"
+        SELECT orderGUID, orderSeq, brand, repPO, AccountNumber, orderDate,
+               repCustomer, repSalesPerson, jobNumber, repUserName, status,
+               totalNet, OrderRecdDate, SalesOrderNumber, Priority, RepName,
+               QueueName, ProductType, Region, JobName, CreatedDate,
+               CompletionDate, PackageOwner
+        FROM dbo.EdgeOrders
+        WHERE orderSeq = @OrderSeq";
+
     public const string GetRouteToDepartmentQueues = @"
         SELECT q.QueueName
         FROM dbo.QueueMaster q

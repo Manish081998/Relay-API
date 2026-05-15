@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Relay.Api.Requests.Documentum;
 using Relay.Api.Routes;
+using Relay.Documentum.Application.Queries.GetEdgeOrderBySeq;
 using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
@@ -50,6 +51,20 @@ public sealed class SearchOrderController : ControllerBase
         return result.IsSuccess
             ? Ok(result.Value)
             : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.GetByOrderSeq)]
+    [ProducesResponseType(typeof(EdgeOrderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByOrderSeq(
+        [FromRoute] int orderSeq, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetEdgeOrderBySeqQuery, EdgeOrderDto?>(
+            new GetEdgeOrderBySeqQuery(orderSeq), cancellationToken);
+
+        return result.IsSuccess && result.Value is not null
+            ? Ok(result.Value)
+            : NotFound();
     }
 
     [HttpGet(ApiRoutes.Documentum.Orders.Brands)]
