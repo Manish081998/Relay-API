@@ -24,21 +24,29 @@ public static class ApiRoutes
             public const string Search = "api/documentum/orders/search";
         }
 
+        public static class Queues
+        {
+            public const string GetAll = "api/documentum/queues";
+            public const string Add    = "api/documentum/queues";
+            public const string Update = "api/documentum/queues";
+            public const string Delete = "api/documentum/queues/{id:int}";
+        }
+
         public static class SalesOrderDocuments
         {
             private const string Base = "api/documentum/sales-order-documents";
-            public const string Upload        = $"{Base}/upload";
+            public const string Upload = $"{Base}/upload";
             public const string CreateVersion = $"{Base}/create-version";
             public const string GetByOrderSeq = $"{Base}/{{orderSeq:int}}";
-            public const string GetVersions   = $"{Base}/{{documentId:int}}/versions";
-            public const string Preview       = $"{Base}/preview";
+            public const string GetVersions = $"{Base}/{{documentId:int}}/versions";
+            public const string Preview = $"{Base}/preview";
         }
 
         public static class Orders
         {
             public const string Search = "api/documentum/orders/search";
-            public const string GetByOrderSeq = "api/documentum/orders/{orderSeq:int}";
             public const string Brands = "api/documentum/orders/brands";
+            public const string GetByOrderSeq = "api/documentum/orders/{orderSeq:int}";
             public const string ProductTypes = "api/documentum/orders/product-types";
             public const string QueuesByBrand = "api/documentum/orders/queues";
             public const string RouteToDepartment = "api/documentum/orders/route-to-department";

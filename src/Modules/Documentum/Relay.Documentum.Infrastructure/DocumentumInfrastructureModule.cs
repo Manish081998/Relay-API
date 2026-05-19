@@ -18,6 +18,7 @@ public static class DocumentumInfrastructureModule
         services.AddScoped<IDocumentumQueries, DocumentumQueriesAdapter>();
         services.AddScoped<IEdgeOrderRepository, EdgeOrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IQueueRepository, QueueRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IBrandMappingQueries, BrandRepository>();
         services.AddScoped<ISalesOrderDocumentRepository, SalesOrderDocumentRepository>();
