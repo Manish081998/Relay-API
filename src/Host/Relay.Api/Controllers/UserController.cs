@@ -56,7 +56,6 @@ namespace Relay.Api.Controllers
                 : BadRequest(result.Error.Description);
         }
 
-
         [HttpPut(ApiRoutes.Users.Update)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
