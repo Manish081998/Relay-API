@@ -12,6 +12,10 @@ using Relay.Documentum.Application.Queries.GetDocumentByName;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
 using Relay.Documentum.Application.Queries.GetRouteToDepartment;
+using Relay.Documentum.Application.Commands.CreateDocumentVersion;
+using Relay.Documentum.Application.Commands.UploadSalesOrderDocument;
+using Relay.Documentum.Application.Queries.GetDocumentsByOrderSeq;
+using Relay.Documentum.Application.Queries.GetDocumentVersions;
 using Relay.Documentum.Application.Queries.GetEdgeOrderBySeq;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
@@ -38,6 +42,12 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<string>>, GetProductTypesQueryHandler>();
         services.AddScoped<IQueryHandler<GetQueuesByBrandQuery, IReadOnlyList<string>>, GetQueuesByBrandQueryHandler>();
         services.AddScoped<IQueryHandler<GetRouteToDepartmentQuery, IReadOnlyList<string>>, GetRouteToDepartmentQueryHandler>();
+
+        // Sales Order Documents
+        services.AddScoped<ICommandHandler<UploadSalesOrderDocumentCommand, UploadDocumentResultDto>, UploadSalesOrderDocumentCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateDocumentVersionCommand, UploadDocumentResultDto>, CreateDocumentVersionCommandHandler>();
+        services.AddScoped<IQueryHandler<GetDocumentsByOrderSeqQuery, IReadOnlyList<SalesOrderDocumentDto>>, GetDocumentsByOrderSeqQueryHandler>();
+        services.AddScoped<IQueryHandler<GetDocumentVersionsQuery, IReadOnlyList<SalesOrderDocumentVersionDto>>, GetDocumentVersionsQueryHandler>();
 
         return services;
     }

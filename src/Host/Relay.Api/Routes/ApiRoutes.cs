@@ -24,6 +24,16 @@ public static class ApiRoutes
             public const string Search = "api/documentum/orders/search";
         }
 
+        public static class SalesOrderDocuments
+        {
+            private const string Base = "api/documentum/sales-order-documents";
+            public const string Upload        = $"{Base}/upload";
+            public const string CreateVersion = $"{Base}/create-version";
+            public const string GetByOrderSeq = $"{Base}/{{orderSeq:int}}";
+            public const string GetVersions   = $"{Base}/{{documentId:int}}/versions";
+            public const string Preview       = $"{Base}/preview";
+        }
+
         public static class Orders
         {
             public const string Search = "api/documentum/orders/search";
