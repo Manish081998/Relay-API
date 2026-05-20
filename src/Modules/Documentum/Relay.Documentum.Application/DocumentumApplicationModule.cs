@@ -7,6 +7,7 @@ using Relay.Documentum.Application.Commands.AddQueue;
 using Relay.Documentum.Application.Commands.DeleteQueue;
 using Relay.Documentum.Application.Commands.UpdateQueue;
 using Relay.Documentum.Application.Queries.GetAllQueues;
+using Relay.Documentum.Application.Queries.GetBrandQueueMapping;
 using Relay.Documentum.Application.Queries.GetAllUsers;
 using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
 using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
@@ -36,6 +37,7 @@ public static class DocumentumApplicationModule
         services.AddScoped<ICommandHandler<AddQueueCommand, int>, AddQueueCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateQueueCommand, int>, UpdateQueueCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteQueueCommand, int>, DeleteQueueCommandHandler>();
+        services.AddScoped<IQueryHandler<GetBrandQueueMappingQuery, BrandQueueMappingResultDto>, GetBrandQueueMappingQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllBrandsQuery, IReadOnlyList<BrandDto>>, GetAllBrandsQueryHandler>();
         services.AddScoped<IQueryHandler<GetBrandAndQueuesAndMappingQuery, BrandAndQueuesAndMappingDto>, GetBrandAndQueuesAndMappingQueryHandler>();
         services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
