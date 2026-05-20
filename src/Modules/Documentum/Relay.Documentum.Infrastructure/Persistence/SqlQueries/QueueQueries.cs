@@ -32,4 +32,6 @@ internal static class QueueQueries
     public const string Delete = @"
         DELETE FROM dbo.QueueMaster
         WHERE QueueId = @QueueId";
+
+    public const string GetBrandQueueMapping = "dbo.usp_GetQueuesByBrandWithMapping";
 }

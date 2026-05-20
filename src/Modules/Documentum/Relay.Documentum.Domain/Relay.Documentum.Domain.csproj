@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\Relay.Documentum.Contracts\Relay.Documentum.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
