@@ -170,6 +170,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             Status = (int)HttpStatusCode.InternalServerError,
             Title = "An unexpected error occurred",
+            Detail = $"{ex.GetType().Name}: {ex.Message}",
             Type = "https://projectrelay.adti/errors/internal"
         }
     };

@@ -21,6 +21,7 @@ public static class DocumentumInfrastructureModule
         services.AddScoped<IQueueRepository, QueueRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IBrandMappingQueries, BrandRepository>();
+        services.AddScoped<ISalesOrderDocumentRepository, SalesOrderDocumentRepository>();
         return services;
     }
 }

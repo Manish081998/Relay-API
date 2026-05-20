@@ -15,14 +15,14 @@ public sealed class CommandDispatcher : ICommandDispatcher
     public Task<Result> SendAsync(ICommand command, CancellationToken cancellationToken = default)
     {
         var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
-        dynamic handler = _serviceProvider.GetRequiredService(handlerType);
-        return handler.HandleAsync((dynamic)command, cancellationToken);
+        var handler = (ICommandHandlerBase)_serviceProvider.GetRequiredService(handlerType);
+        return handler.HandleAsync(command, cancellationToken);
     }
 
     public Task<Result<TResponse>> SendAsync<TResponse>(ICommand<TResponse> command, CancellationToken cancellationToken = default)
     {
         var handlerType = typeof(ICommandHandler<,>).MakeGenericType(command.GetType(), typeof(TResponse));
-        dynamic handler = _serviceProvider.GetRequiredService(handlerType);
-        return handler.HandleAsync((dynamic)command, cancellationToken);
+        var handler = (ICommandHandlerBase<TResponse>)_serviceProvider.GetRequiredService(handlerType);
+        return handler.HandleAsync(command, cancellationToken);
     }
 }

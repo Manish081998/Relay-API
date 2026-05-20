@@ -22,6 +22,7 @@ public interface IEdgeOrderRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<EdgeOrder?> GetByOrderSeqAsync(int orderSeq, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetProductTypesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default);

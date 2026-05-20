@@ -72,7 +72,39 @@ await _commands.SendAsync(new CreateXxxCommand(...), cancellationToken);  // ret
 
 ## Adding a New API Endpoint
 
-**Before writing any code, ask the user questions ONE AT A TIME. For each question, validate the answer. If invalid, explain why and repeat the question. Only if valid, proceed to the next question.**
+**Before writing any code, run the pre-flight controller check below, then ask the user questions ONE AT A TIME. For each question, validate the answer. If invalid, explain why and repeat the question. Only if valid, proceed to the next question.**
+
+---
+
+### Pre-flight: Controller Location Check
+
+**Trigger:** The user's request mentions a specific controller by name (e.g., _"create an API in UserController"_).
+
+**Steps:**
+
+1. Check whether a controller with that name exists inside any module folder:
+   `src/Host/Relay.Api/Controllers/{Documentum|Intranet|WebSelect}/{ControllerName}.cs`
+
+2. Check whether a controller with the same name exists **outside** any module folder (directly under `src/Host/Relay.Api/Controllers/`).
+
+3. Apply the decision table:
+
+| Found inside a module? | Found outside a module? | Action |
+|------------------------|------------------------|--------|
+| Yes | — | Proceed normally — controller is in the correct location. Continue to Question 1. |
+| No | Yes | **Warn the user** (see warning script below), then wait for confirmation before continuing. |
+| No | No | Treat as a new controller. Continue to Question 1 and Question 2 (Option B). |
+
+**Warning script (use when controller is only found outside a module folder):**
+
+> _"I found `{ControllerName}` at `src/Host/Relay.Api/Controllers/{ControllerName}.cs`, which is **not inside any module folder**. The standard location for controllers in this project is `src/Host/Relay.Api/Controllers/{Module}/{ControllerName}.cs`._
+>
+> _Are you sure you want to add the new endpoint to this controller at its current (non-module) location? (Yes / No)"_
+
+- **If the user answers No:** Resume from Question 1 and let them choose a module and controller normally.
+- **If the user answers Yes:** Skip Question 1 and Question 2 (module and controller are already decided). Proceed directly to Question 3, using the confirmed controller as the target. When writing the controller endpoint in the final step, append it to the existing file at `src/Host/Relay.Api/Controllers/{ControllerName}.cs`.
+
+---
 
 > **Question 1: Which module should this API belong to?**
 >    - Valid answers: `Documentum`, `Intranet`, or `WebSelect`
@@ -96,33 +128,41 @@ await _commands.SendAsync(new CreateXxxCommand(...), cancellationToken);  // ret
 >
 > **Question 3: What HTTP method will this endpoint use?**
 >    - Valid answers: `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`
->    - `GET` → **Query** → use `IQueryDispatcher` (`_queries.SendAsync`) → skip to Question 5 after this
+>    - `GET` → **Query** → use `IQueryDispatcher` (`_queries.SendAsync`)
 >    - `POST` → **Command** (create) → use `ICommandDispatcher` (`_commands.SendAsync`)
 >    - `PUT` → **Command** (full update) → use `ICommandDispatcher` (`_commands.SendAsync`)
 >    - `PATCH` → **Command** (partial update) → use `ICommandDispatcher` (`_commands.SendAsync`)
 >    - `DELETE` → **Command** (delete) → use `ICommandDispatcher` (`_commands.SendAsync`)
 >    - **Validation:** Answer MUST be exactly one of: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
 >    - **If INVALID:** Respond — _"That HTTP method is not recognized. Please choose one of: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`."_ Then repeat Question 3.
->    - **If VALID and GET:** Skip Question 4 and proceed to Question 5.
->    - **If VALID and (POST/PUT/PATCH/DELETE):** Proceed to Question 4.
+>    - **If VALID:** Proceed to Question 4.
 >
-> **Question 4: (Commands only — `POST / PUT / PATCH / DELETE`) Will this endpoint return a response body?**
->    - Valid answers: `Yes` or `No`
->    - `No` → command implements `ICommand` (no generic) → handler returns `Task<Result>` → controller returns `NoContent()` / `Ok()`
->    - `Yes` → command implements `ICommand<XxxDto>` → handler returns `Task<Result<XxxDto>>` → controller returns `Ok(result.Value)`
->    - **Validation:** Answer MUST be either `Yes` or `No`
+> **Question 4: Will this endpoint accept a request body?**
+>
+>    _Ask for every HTTP method. Apply the rules below:_
+>
+>    - **`GET`** — parameters travel via route or query string, not a JSON body. **Skip this question and proceed directly to Question 5.**
+>    - **`POST / PUT / PATCH`** — ask: _"Will this endpoint accept a JSON request body? (Yes / No)"_
+>      - **If Yes:** Ask — _"What fields should the request body contain? List each field as `FieldName: CSharpType` (e.g., `Name: string, Status: string, StartDate: DateTime, IsActive: bool`)."_ Record the field list — these become the properties of the `{Verb}{Entity}Request.cs` record.
+>      - **If No:** Parameters come from the route or query string only. No request record will be created.
+>    - **`DELETE`** — DELETE endpoints typically use only a route parameter (e.g., `{id:guid}`). Ask: _"Does this DELETE endpoint require a JSON request body? (Yes / No)"_
+>      - **If Yes:** Ask — _"What fields should the request body contain? List each field as `FieldName: CSharpType`."_ Record the field list.
+>      - **If No:** No request record needed.
+>    - **Validation:** Answer MUST be either `Yes` or `No`.
 >    - **If INVALID:** Respond — _"Please answer either 'Yes' or 'No'."_ Then repeat Question 4.
->    - **If VALID and Yes:** Ask — _"What fields should the response contain? List the field name and type for each (e.g., 'Id: Guid, Name: string, Status: string')."_ Then proceed to Question 5.
->    - **If VALID and No:** Proceed to Question 5.
+>    - **If VALID:** Proceed to Question 5.
 >
-> **Question 5: (`POST / PUT / PATCH` only) Does this endpoint accept a request body?**
->    - Valid answers: `Yes` or `No`
->    - `No` → no `{Verb}{Entity}Request.cs` needed (params come from route/query string)
->    - `Yes` → ask the user to list the **request body fields** — name and type for each
->    - **Validation:** Answer MUST be either `Yes` or `No`. (For GET and DELETE, skip this question.)
+> **Question 5: Will this endpoint return a response body?**
+>
+>    _Ask for every HTTP method. Apply the rules below:_
+>
+>    - **`GET`** — a GET endpoint always returns data. Ask — _"What fields should the response contain? List each field as `FieldName: CSharpType` (e.g., `Id: Guid, Name: string, Status: string, CreatedAt: DateTime`)."_ Record the field list — these become the properties of the `XxxDto.cs` record. Then proceed to implementation.
+>    - **`POST / PUT / PATCH / DELETE`** — ask: _"Will this endpoint return a response body? (Yes / No)"_
+>      - **If Yes:** Ask — _"What fields should the response body contain? List each field as `FieldName: CSharpType` (e.g., `Id: Guid, Name: string, Status: string`)."_ Record the field list — these become the properties of `XxxDto.cs`. Command implements `ICommand<XxxDto>` → handler returns `Task<Result<XxxDto>>` → controller returns `Ok(result.Value)` or `CreatedAtAction(...)`.
+>      - **If No:** No DTO needed. Command implements `ICommand` (no generic) → handler returns `Task<Result>` → controller returns `NoContent()` or `Ok()`.
+>    - **Validation:** Answer MUST be either `Yes` or `No` (for `POST / PUT / PATCH / DELETE`).
 >    - **If INVALID:** Respond — _"Please answer either 'Yes' or 'No'."_ Then repeat Question 5.
->    - **If VALID and Yes:** Ask — _"What fields should the request body contain? List the field name and type for each (e.g., 'Name: string, Status: string')."_ Then proceed to implementation.
->    - **If VALID and No:** All information is gathered. Proceed with implementation.**
+>    - **If VALID:** All information is gathered. Proceed with implementation.
 
 ---
 

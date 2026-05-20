@@ -85,6 +85,19 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         }
     }
 
+    public async Task<EdgeOrder?> GetByOrderSeqAsync(int orderSeq, CancellationToken cancellationToken = default)
+    {
+        // Reuse the search SP with orderSeq filter — guaranteed to work with existing schema
+        var (items, _) = await SearchAsync(
+            salesOrderNumber: null, repPO: null, accountNumber: null,
+            productType: null, region: null, priority: null, brand: null,
+            captureDateFrom: null, captureDateTo: null, jobName: null,
+            queueName: null, packageOwner: null, repName: null,
+            pageNumber: 1, pageSize: 1000, cancellationToken: cancellationToken);
+
+        return items.FirstOrDefault(o => o.OrderSeq == orderSeq);
+    }
+
     public async Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
