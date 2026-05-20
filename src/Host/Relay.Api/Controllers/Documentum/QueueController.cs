@@ -6,6 +6,7 @@ using Relay.Documentum.Application.Commands.AddQueue;
 using Relay.Documentum.Application.Commands.DeleteQueue;
 using Relay.Documentum.Application.Commands.UpdateQueue;
 using Relay.Documentum.Application.Queries.GetAllQueues;
+using Relay.Documentum.Application.Queries.GetBrandQueueMapping;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
 
@@ -94,6 +95,22 @@ public sealed class QueueController : ControllerBase
                 ? NotFound(result.Error.Description)
                 : BadRequest(result.Error.Description);
         }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Queues.GetBrandQueueMapping)]
+    [ProducesResponseType(typeof(BrandQueueMappingResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBrandQueueMapping(
+        [FromQuery] string? globalId,
+        [FromQuery] string? actionType,
+        [FromQuery] int brandId = 0,
+        [FromQuery] string? queueId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetBrandQueueMappingQuery, BrandQueueMappingResultDto>(
+            new GetBrandQueueMappingQuery(globalId, actionType, brandId, queueId),
+            cancellationToken);
 
         return Ok(result.Value);
     }
