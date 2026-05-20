@@ -26,10 +26,11 @@ public static class ApiRoutes
 
         public static class Queues
         {
-            public const string GetAll = "api/documentum/queues";
-            public const string Add    = "api/documentum/queues";
-            public const string Update = "api/documentum/queues";
-            public const string Delete = "api/documentum/queues/{id:int}";
+            public const string GetAll               = "api/documentum/queues";
+            public const string Add                  = "api/documentum/queues";
+            public const string Update               = "api/documentum/queues";
+            public const string Delete               = "api/documentum/queues/{id:int}";
+            public const string GetBrandQueueMapping = "api/documentum/queues/brand-queue-mapping";
         }
 
         public static class Orders
