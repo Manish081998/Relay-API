@@ -60,11 +60,12 @@ public static class ApiRoutes
 
     public static class Users
     {
-        public const string GetAll = "api/users";
+        //public const string GetAll = "api/users";
         public const string CreateUser = "api/users/CreateUser";
+        public const string UpdateUser = "api/users/UpdateUser";
         public const string GetByGlobalId = "api/users/{globalId}";
-        public const string Add = "api/users";
-        public const string Update = "api/users";
+        //public const string Add = "api/users";
+        //public const string Update = "api/users";
     }   
     public static class Intranet
     {
