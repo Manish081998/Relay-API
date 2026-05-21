@@ -18,6 +18,8 @@ public interface IEdgeOrderRepository
         string? queueName,
         string? packageOwner,
         string? repName,
+        string? sortField,
+        string? sortDirection,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);

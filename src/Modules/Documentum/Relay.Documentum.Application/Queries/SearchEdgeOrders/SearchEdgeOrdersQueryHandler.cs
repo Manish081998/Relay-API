@@ -37,6 +37,8 @@ public sealed class SearchEdgeOrdersQueryHandler : IQueryHandler<SearchEdgeOrder
             query.QueueName,
             query.PackageOwner,
             query.RepName,
+            query.SortField,
+            query.SortDirection,
             query.PageNumber,
             query.PageSize,
             cancellationToken);
