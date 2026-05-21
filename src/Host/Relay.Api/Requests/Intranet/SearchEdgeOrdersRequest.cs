@@ -6,4 +6,6 @@ public sealed record SearchEdgeOrdersRequest(
     string? RepPO = null,
     string? PcUserName = null,
     string? RecordedDate = null,
-    string? ReleaseName = null);
+    string? ReleaseName = null,
+    int PageNumber = 1,
+    int PageSize = 50);

@@ -18,20 +18,25 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         _db = db ?? throw new ArgumentNullException(nameof(db));
     }
 
-    public Task<IReadOnlyList<EdgeOrder>> SearchAsync(string? emailId, string? releaseNumber, string? repPO, string? pcUserName, string? recordedDate, string? releaseName, CancellationToken cancellationToken = default) =>
-        _db.QueryAsync(
+    public Task<(IReadOnlyList<EdgeOrder> Items, int TotalCount)> SearchAsync(
+        string? emailId, string? releaseNumber, string? repPO,
+        string? pcUserName, string? recordedDate, string? releaseName,
+        int pageNumber, int pageSize,
+        CancellationToken cancellationToken = default) =>
+        _db.QueryPagedAsync(
             Module,
             EdgeOrderQueries.Search,
             r => EdgeOrderDataModel.FromRecord(r).ToAggregate(),
             new
             {
-                EmailID = emailId,
+                EmailID       = emailId,
                 ReleaseNumber = releaseNumber,
-                RepPO = repPO,
-                PC_UserName = pcUserName,
-                RecordedDate = recordedDate,
-                ReleaseName = releaseName,
+                RepPO         = repPO,
+                PC_UserName   = pcUserName,
+                RecordedDate  = recordedDate,
+                ReleaseName   = releaseName,
+                PageNumber    = pageNumber,
+                PageSize      = pageSize,
             },
-            CommandType.StoredProcedure,
-            cancellationToken);
+            cancellationToken: cancellationToken);
 }

@@ -92,6 +92,18 @@ public interface IDbExecutor
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Executes a paged stored procedure. Returns rows via a result set and total count
+    /// via an INT OUTPUT parameter (default name <c>@TotalCount</c>).
+    /// </summary>
+    Task<(IReadOnlyList<T> Items, int TotalCount)> QueryPagedAsync<T>(
+        string moduleName,
+        string sql,
+        Func<IDataRecord, T> map,
+        object? parameters = null,
+        string totalCountParamName = "@TotalCount",
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Begins a transaction bound to a fresh connection. The caller is responsible for
     /// committing or rolling back, and for disposing the returned scope.
     /// </summary>

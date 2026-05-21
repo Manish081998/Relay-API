@@ -13,7 +13,7 @@ public static class IntranetApplicationModule
     {
         services.AddScoped<IQueryHandler<GetUserByIdQuery, UserDto?>, GetUserByIdQueryHandler>();
         services.AddScoped<ICommandHandler<UpdateUserByEmailCommand, UserDto>, UpdateUserByEmailCommandHandler>();
-        services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, IReadOnlyList<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
+        services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedEdgeOrderResultDto>, SearchEdgeOrdersQueryHandler>();
 
         return services;
     }
