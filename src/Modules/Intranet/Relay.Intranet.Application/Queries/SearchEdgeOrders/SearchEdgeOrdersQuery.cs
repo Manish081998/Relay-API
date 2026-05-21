@@ -9,4 +9,6 @@ public sealed record SearchEdgeOrdersQuery(
     string? RepPO,
     string? PcUserName,
     string? RecordedDate,
-    string? ReleaseName) : IQuery<IReadOnlyList<EdgeOrderDto>>;
+    string? ReleaseName,
+    int PageNumber,
+    int PageSize) : IQuery<PagedEdgeOrderResultDto>;

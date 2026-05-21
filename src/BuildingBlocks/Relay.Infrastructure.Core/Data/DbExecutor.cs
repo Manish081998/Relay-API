@@ -158,6 +158,41 @@ public sealed class DbExecutor : IDbExecutor
         });
     }
 
+    public async Task<(IReadOnlyList<T> Items, int TotalCount)> QueryPagedAsync<T>(
+        string moduleName, string sql, Func<IDataRecord, T> map,
+        object? parameters = null, string totalCountParamName = "@TotalCount",
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(moduleName, cancellationToken);
+        await using var command = CreateCommand(connection, sql, parameters, CommandType.StoredProcedure, transaction: null);
+
+        var totalCountParam = command.CreateParameter();
+        totalCountParam.ParameterName = totalCountParamName;
+        totalCountParam.DbType = DbType.Int32;
+        totalCountParam.Direction = ParameterDirection.Output;
+        command.Parameters.Add(totalCountParam);
+
+        return await TimedAsync(moduleName, sql, async () =>
+        {
+            var reader = await command.ExecuteReaderAsync(cancellationToken);
+            var items = new List<T>();
+            try
+            {
+                while (await reader.ReadAsync(cancellationToken))
+                    items.Add(map(reader));
+            }
+            finally
+            {
+                await reader.DisposeAsync();
+            }
+
+            var totalCount = totalCountParam.Value is DBNull or null ? 0 : Convert.ToInt32(totalCountParam.Value);
+            return ((IReadOnlyList<T>)items, totalCount);
+        });
+    }
+
     public async Task<IDbTransactionScope> BeginTransactionAsync(
         string moduleName, IsolationLevel isolation = IsolationLevel.ReadCommitted,
         CancellationToken cancellationToken = default)

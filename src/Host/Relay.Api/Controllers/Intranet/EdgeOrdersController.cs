@@ -20,11 +20,20 @@ public sealed class EdgeOrdersController : ControllerBase
     }
 
     [HttpGet(ApiRoutes.Intranet.SearchEdgeOrders)]
-    [ProducesResponseType(typeof(IReadOnlyList<EdgeOrderDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedEdgeOrderResultDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Search([FromQuery] SearchEdgeOrdersRequest request, CancellationToken cancellationToken = default)
     {
-        var result = await _queries.SendAsync<SearchEdgeOrdersQuery, IReadOnlyList<EdgeOrderDto>>(
-            new SearchEdgeOrdersQuery(request.EmailId, request.ReleaseNumber, request.RepPO, request.PcUserName, request.RecordedDate, request.ReleaseName), cancellationToken);
+        var result = await _queries.SendAsync<SearchEdgeOrdersQuery, PagedEdgeOrderResultDto>(
+            new SearchEdgeOrdersQuery(
+                request.EmailId,
+                request.ReleaseNumber,
+                request.RepPO,
+                request.PcUserName,
+                request.RecordedDate,
+                request.ReleaseName,
+                request.PageNumber,
+                request.PageSize),
+            cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error.Description);
     }
