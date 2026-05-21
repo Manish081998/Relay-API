@@ -33,6 +33,8 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         string? queueName,
         string? packageOwner,
         string? repName,
+        string? sortField,
+        string? sortDirection,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -58,6 +60,15 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
             command.Parameters.AddWithValue("@QueueName", (object?)queueName ?? DBNull.Value);
             command.Parameters.AddWithValue("@PackageOwner", (object?)packageOwner ?? DBNull.Value);
             command.Parameters.AddWithValue("@RepName", (object?)repName ?? DBNull.Value);
+
+            // Only send sort params when provided — keeps backward compatibility
+            // with the stored procedure before the sort migration is applied.
+            if (!string.IsNullOrEmpty(sortField))
+            {
+                command.Parameters.AddWithValue("@SortField", sortField);
+                command.Parameters.AddWithValue("@SortDirection", string.IsNullOrEmpty(sortDirection) ? "asc" : sortDirection);
+            }
+
             command.Parameters.AddWithValue("@PageNumber", pageNumber);
             command.Parameters.AddWithValue("@PageSize", pageSize);
 
@@ -93,6 +104,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
             productType: null, region: null, priority: null, brand: null,
             captureDateFrom: null, captureDateTo: null, jobName: null,
             queueName: null, packageOwner: null, repName: null,
+            sortField: null, sortDirection: null,
             pageNumber: 1, pageSize: 1000, cancellationToken: cancellationToken);
 
         return items.FirstOrDefault(o => o.OrderSeq == orderSeq);

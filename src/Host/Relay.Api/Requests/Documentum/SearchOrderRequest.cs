@@ -14,5 +14,7 @@ public sealed record SearchOrderRequest(
     string? QueueName = null,
     string? PackageOwner = null,
     string? RepName = null,
+    string? SortField = null,
+    string? SortDirection = null,
     int PageNumber = 1,
     int PageSize = 50);

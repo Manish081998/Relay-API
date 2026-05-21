@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Relay.Documentum.Application.Commands.AddUser;
-using Relay.Documentum.Application.Commands.UpdateDocumentById;
 using Relay.Documentum.Application.Commands.UpdateUser;
 using Relay.Documentum.Application.Queries.GetAllBrands;
 using Relay.Documentum.Application.Commands.AddQueue;
@@ -9,11 +8,8 @@ using Relay.Documentum.Application.Commands.UpdateQueue;
 using Relay.Documentum.Application.Queries.GetAllQueues;
 using Relay.Documentum.Application.Queries.GetBrandQueueMapping;
 using Relay.Documentum.Application.Queries.GetAllUsers;
-using Relay.Documentum.Application.Queries.GetAnnotationDetailsById;
 using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
 using Relay.Documentum.Application.Queries.GetBrands;
-using Relay.Documentum.Application.Queries.GetDocumentById;
-using Relay.Documentum.Application.Queries.GetDocumentByName;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
 using Relay.Documentum.Application.Queries.GetRouteToDepartment;
@@ -22,7 +18,9 @@ using Relay.Documentum.Application.Commands.UploadSalesOrderDocument;
 using Relay.Documentum.Application.Queries.GetDocumentsByOrderSeq;
 using Relay.Documentum.Application.Queries.GetDocumentVersions;
 using Relay.Documentum.Application.Queries.GetEdgeOrderBySeq;
+using Relay.Documentum.Application.Queries.GetSalesOrderNotes;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
+using Relay.Documentum.Application.Commands.AddSalesOrderNote;
 using Relay.Documentum.Contracts.Dtos;
 using Relay.SharedKernel.Application;
 
@@ -32,10 +30,6 @@ public static class DocumentumApplicationModule
 {
     public static IServiceCollection AddDocumentumApplication(this IServiceCollection services)
     {
-        services.AddScoped<IQueryHandler<GetDocumentByIdQuery, DocumentDto?>, GetDocumentByIdQueryHandler>();
-        services.AddScoped<IQueryHandler<GetDocumentByNameQuery, IReadOnlyList<DocumentDto>>, GetDocumentByNameQueryHandler>();
-        services.AddScoped<ICommandHandler<UpdateDocumentByIdCommand, DocumentDto>, UpdateDocumentByIdCommandHandler>();
-        services.AddScoped<IQueryHandler<GetAnnotationDetailsByIdQuery, AnnotationDetailsDto>, GetAnnotationDetailsByIdQueryHandler>();
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>, SearchEdgeOrdersQueryHandler>();
         services.AddScoped<IQueryHandler<GetEdgeOrderBySeqQuery, EdgeOrderDto?>, GetEdgeOrderBySeqQueryHandler>();
         services.AddScoped<IQueryHandler<GetAllUsersQuery, IReadOnlyList<UserDto>>, GetAllUsersQueryHandler>();
@@ -58,6 +52,10 @@ public static class DocumentumApplicationModule
         services.AddScoped<ICommandHandler<CreateDocumentVersionCommand, UploadDocumentResultDto>, CreateDocumentVersionCommandHandler>();
         services.AddScoped<IQueryHandler<GetDocumentsByOrderSeqQuery, IReadOnlyList<SalesOrderDocumentDto>>, GetDocumentsByOrderSeqQueryHandler>();
         services.AddScoped<IQueryHandler<GetDocumentVersionsQuery, IReadOnlyList<SalesOrderDocumentVersionDto>>, GetDocumentVersionsQueryHandler>();
+
+        // Sales Order Notes
+        services.AddScoped<ICommandHandler<AddSalesOrderNoteCommand, long>, AddSalesOrderNoteCommandHandler>();
+        services.AddScoped<IQueryHandler<GetSalesOrderNotesQuery, IReadOnlyList<SalesOrderNoteDto>>, GetSalesOrderNotesQueryHandler>();
 
         return services;
     }

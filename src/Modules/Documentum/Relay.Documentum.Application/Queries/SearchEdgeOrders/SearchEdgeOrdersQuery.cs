@@ -17,5 +17,7 @@ public sealed record SearchEdgeOrdersQuery(
     string? QueueName,
     string? PackageOwner,
     string? RepName,
+    string? SortField,
+    string? SortDirection,
     int PageNumber,
     int PageSize) : IQuery<PagedResultDto<EdgeOrderDto>>;

@@ -43,6 +43,8 @@ public sealed class SearchOrderController : ControllerBase
             request.QueueName,
             request.PackageOwner,
             request.RepName,
+            request.SortField,
+            request.SortDirection,
             request.PageNumber,
             request.PageSize);
 

@@ -4,20 +4,10 @@ public static class ApiRoutes
 {
     public static class Documentum
     {
-        public static class Annotation
-        {
-            public const string GetById = "api/documentum/annotations/{id:int}";
-        }
         public static class Brands
         {
             public const string GetAll = "api/documentum/GetAllBrands";
             public const string BrandAndQueuesAndMapping = "api/documentum/GetBrandAndQueuesAndMapping";
-        }
-        public static class Documents
-        {
-            public const string GetById = "api/documentum/documents/{id:guid}";
-            public const string Search = "api/documentum/documents/search";
-            public const string UpdateById = "api/documentum/documents/{id:guid}";
         }
         public static class SearchOrder
         {
@@ -41,6 +31,13 @@ public static class ApiRoutes
             public const string GetByOrderSeq = $"{Base}/{{orderSeq:int}}";
             public const string GetVersions = $"{Base}/{{documentId:int}}/versions";
             public const string Preview = $"{Base}/preview";
+        }
+
+        public static class SalesOrderNotes
+        {
+            private const string Base = "api/documentum/sales-order-notes";
+            public const string GetByOrderSeq = $"{Base}/{{orderSeq:int}}";
+            public const string Add = Base;
         }
 
         public static class Orders

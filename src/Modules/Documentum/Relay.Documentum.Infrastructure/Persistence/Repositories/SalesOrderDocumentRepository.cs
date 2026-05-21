@@ -24,51 +24,45 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         bool isSupportedDocument, string createdBy, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
-        await using var transaction = (SqlTransaction)await ((SqlConnection)connection).BeginTransactionAsync(cancellationToken);
-
-        try
+        await using var command = new SqlCommand(SalesOrderDocumentQueries.Upload, (SqlConnection)connection)
         {
-            // 1. Insert document master
-            int documentId;
-            await using (var cmd = new SqlCommand(SalesOrderDocumentQueries.InsertDocument, (SqlConnection)connection, transaction))
-            {
-                cmd.Parameters.AddWithValue("@OrderSeq", orderSeq);
-                cmd.Parameters.AddWithValue("@RepPO", (object?)repPO ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@BrandName", (object?)brandName ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@DocumentName", documentName);
-                cmd.Parameters.AddWithValue("@ContentType", contentType);
-                cmd.Parameters.AddWithValue("@MimeType", mimeType);
-                cmd.Parameters.AddWithValue("@SizeBytes", sizeBytes);
-                cmd.Parameters.AddWithValue("@IsSupportedDocument", isSupportedDocument);
-                cmd.Parameters.AddWithValue("@CreatedBy", createdBy);
+            CommandType = CommandType.StoredProcedure
+        };
 
-                documentId = (int)(await cmd.ExecuteScalarAsync(cancellationToken))!;
-            }
+        command.Parameters.AddWithValue("@OrderSeq", orderSeq);
+        command.Parameters.AddWithValue("@RepPO", (object?)repPO ?? DBNull.Value);
+        command.Parameters.AddWithValue("@BrandName", (object?)brandName ?? DBNull.Value);
+        command.Parameters.AddWithValue("@DocumentName", documentName);
+        command.Parameters.AddWithValue("@ContentType", contentType);
+        command.Parameters.AddWithValue("@MimeType", mimeType);
+        command.Parameters.AddWithValue("@SizeBytes", sizeBytes);
+        command.Parameters.AddWithValue("@DocumentPath", documentPath);
+        command.Parameters.AddWithValue("@IsSupportedDocument", isSupportedDocument);
+        command.Parameters.AddWithValue("@CreatedBy", createdBy);
 
-            // 2. Insert version 1
-            int versionId;
-            await using (var cmd = new SqlCommand(SalesOrderDocumentQueries.InsertVersion, (SqlConnection)connection, transaction))
-            {
-                cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                cmd.Parameters.AddWithValue("@VersionNumber", 1);
-                cmd.Parameters.AddWithValue("@Comment", DBNull.Value);
-                cmd.Parameters.AddWithValue("@DocumentPath", documentPath);
-                cmd.Parameters.AddWithValue("@ContentType", contentType);
-                cmd.Parameters.AddWithValue("@MimeType", mimeType);
-                cmd.Parameters.AddWithValue("@SizeBytes", sizeBytes);
-                cmd.Parameters.AddWithValue("@CreatedBy", createdBy);
+        var documentIdParam = new SqlParameter("@DocumentId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+        var versionIdParam  = new SqlParameter("@VersionId", SqlDbType.Int)  { Direction = ParameterDirection.Output };
+        command.Parameters.Add(documentIdParam);
+        command.Parameters.Add(versionIdParam);
 
-                versionId = (int)(await cmd.ExecuteScalarAsync(cancellationToken))!;
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-            return (documentId, versionId, 1);
-        }
-        catch
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (await reader.ReadAsync(cancellationToken))
         {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
+            return (
+                reader.GetInt32(reader.GetOrdinal("DocumentId")),
+                reader.GetInt32(reader.GetOrdinal("VersionId")),
+                reader.GetInt32(reader.GetOrdinal("VersionNumber"))
+            );
         }
+
+        await reader.CloseAsync();
+
+        // Fallback to output params if result set not returned
+        return (
+            (int)documentIdParam.Value,
+            (int)versionIdParam.Value,
+            1
+        );
     }
 
     // ── Create new version (edit/annotate) ──────────────────────────────────
@@ -79,51 +73,41 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
-        await using var transaction = (SqlTransaction)await ((SqlConnection)connection).BeginTransactionAsync(cancellationToken);
-
-        try
+        await using var command = new SqlCommand(SalesOrderDocumentQueries.CreateVersion, (SqlConnection)connection)
         {
-            // 1. Get next version number
-            int nextVersion;
-            await using (var cmd = new SqlCommand(SalesOrderDocumentQueries.GetMaxVersionNumber, (SqlConnection)connection, transaction))
-            {
-                cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                nextVersion = (int)(await cmd.ExecuteScalarAsync(cancellationToken))! + 1;
-            }
+            CommandType = CommandType.StoredProcedure
+        };
 
-            // 2. Insert new version
-            int versionId;
-            await using (var cmd = new SqlCommand(SalesOrderDocumentQueries.InsertVersion, (SqlConnection)connection, transaction))
-            {
-                cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                cmd.Parameters.AddWithValue("@VersionNumber", nextVersion);
-                cmd.Parameters.AddWithValue("@Comment", (object?)comment ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@DocumentPath", documentPath);
-                cmd.Parameters.AddWithValue("@ContentType", contentType);
-                cmd.Parameters.AddWithValue("@MimeType", mimeType);
-                cmd.Parameters.AddWithValue("@SizeBytes", sizeBytes);
-                cmd.Parameters.AddWithValue("@CreatedBy", createdBy);
+        command.Parameters.AddWithValue("@DocumentId", documentId);
+        command.Parameters.AddWithValue("@DocumentPath", documentPath);
+        command.Parameters.AddWithValue("@ContentType", contentType);
+        command.Parameters.AddWithValue("@MimeType", mimeType);
+        command.Parameters.AddWithValue("@SizeBytes", sizeBytes);
+        command.Parameters.AddWithValue("@CreatedBy", createdBy);
+        command.Parameters.AddWithValue("@Comment", (object?)comment ?? DBNull.Value);
 
-                versionId = (int)(await cmd.ExecuteScalarAsync(cancellationToken))!;
-            }
+        var versionIdParam     = new SqlParameter("@VersionId", SqlDbType.Int)     { Direction = ParameterDirection.Output };
+        var versionNumberParam = new SqlParameter("@VersionNumber", SqlDbType.Int) { Direction = ParameterDirection.Output };
+        command.Parameters.Add(versionIdParam);
+        command.Parameters.Add(versionNumberParam);
 
-            // 3. Update master's CurrentVersion
-            await using (var cmd = new SqlCommand(SalesOrderDocumentQueries.UpdateCurrentVersion, (SqlConnection)connection, transaction))
-            {
-                cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                cmd.Parameters.AddWithValue("@CurrentVersion", nextVersion);
-                cmd.Parameters.AddWithValue("@ModifiedBy", createdBy);
-                await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-            return (documentId, versionId, nextVersion);
-        }
-        catch
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (await reader.ReadAsync(cancellationToken))
         {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
+            return (
+                reader.GetInt32(reader.GetOrdinal("DocumentId")),
+                reader.GetInt32(reader.GetOrdinal("VersionId")),
+                reader.GetInt32(reader.GetOrdinal("VersionNumber"))
+            );
         }
+
+        await reader.CloseAsync();
+
+        return (
+            documentId,
+            (int)versionIdParam.Value,
+            (int)versionNumberParam.Value
+        );
     }
 
     // ── Get documents by order ─────────────────────────────────────────────
@@ -132,18 +116,17 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         int orderSeq, bool? isSupportedDocument = null, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(SalesOrderDocumentQueries.GetByOrderSeq, (SqlConnection)connection)
+        {
+            CommandType = CommandType.StoredProcedure
+        };
 
-        var sql = isSupportedDocument.HasValue
-            ? SalesOrderDocumentQueries.GetByOrderSeqFiltered
-            : SalesOrderDocumentQueries.GetByOrderSeq;
-
-        await using var cmd = new SqlCommand(sql, (SqlConnection)connection);
-        cmd.Parameters.AddWithValue("@OrderSeq", orderSeq);
+        command.Parameters.AddWithValue("@OrderSeq", orderSeq);
         if (isSupportedDocument.HasValue)
-            cmd.Parameters.AddWithValue("@IsSupportedDocument", isSupportedDocument.Value);
+            command.Parameters.AddWithValue("@IsSupportedDocument", isSupportedDocument.Value);
 
         var results = new List<SalesOrderDocumentResult>();
-        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
             results.Add(MapDocument(reader));
@@ -157,11 +140,15 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         int documentId, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
-        await using var cmd = new SqlCommand(SalesOrderDocumentQueries.GetVersions, (SqlConnection)connection);
-        cmd.Parameters.AddWithValue("@DocumentId", documentId);
+        await using var command = new SqlCommand(SalesOrderDocumentQueries.GetVersions, (SqlConnection)connection)
+        {
+            CommandType = CommandType.StoredProcedure
+        };
+
+        command.Parameters.AddWithValue("@DocumentId", documentId);
 
         var results = new List<SalesOrderDocumentVersionResult>();
-        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
             results.Add(MapVersion(reader));
@@ -172,30 +159,30 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
     // ── Mappers ────────────────────────────────────────────────────────────
 
     private static SalesOrderDocumentResult MapDocument(SqlDataReader r) => new(
-        DocumentId:          Convert.ToInt32(r.GetValue(r.GetOrdinal("DocumentId"))),
-        OrderSeq:            Convert.ToInt32(r.GetValue(r.GetOrdinal("OrderSeq"))),
-        RepPO:               r.IsDBNull(r.GetOrdinal("RepPO")) ? null : r.GetString(r.GetOrdinal("RepPO")),
-        BrandName:           r.IsDBNull(r.GetOrdinal("BrandName")) ? null : r.GetString(r.GetOrdinal("BrandName")),
-        DocumentName:        r.GetString(r.GetOrdinal("DocumentName")),
-        ContentType:         r.GetString(r.GetOrdinal("ContentType")),
-        MimeType:            r.GetString(r.GetOrdinal("MimeType")),
-        SizeBytes:           Convert.ToInt64(r.GetValue(r.GetOrdinal("SizeBytes"))),
-        CurrentVersion:      Convert.ToInt32(r.GetValue(r.GetOrdinal("CurrentVersion"))),
+        DocumentId: Convert.ToInt32(r.GetValue(r.GetOrdinal("DocumentId"))),
+        OrderSeq: Convert.ToInt32(r.GetValue(r.GetOrdinal("OrderSeq"))),
+        RepPO: r.IsDBNull(r.GetOrdinal("RepPO")) ? null : r.GetString(r.GetOrdinal("RepPO")),
+        BrandName: r.IsDBNull(r.GetOrdinal("BrandName")) ? null : r.GetString(r.GetOrdinal("BrandName")),
+        DocumentName: r.GetString(r.GetOrdinal("DocumentName")),
+        ContentType: r.GetString(r.GetOrdinal("ContentType")),
+        MimeType: r.GetString(r.GetOrdinal("MimeType")),
+        SizeBytes: Convert.ToInt64(r.GetValue(r.GetOrdinal("SizeBytes"))),
+        CurrentVersion: Convert.ToInt32(r.GetValue(r.GetOrdinal("CurrentVersion"))),
         IsSupportedDocument: r.GetBoolean(r.GetOrdinal("IsSupportedDocument")),
-        CreatedBy:           r.GetString(r.GetOrdinal("CreatedBy")),
-        CreatedDate:         r.GetDateTime(r.GetOrdinal("CreatedDate")),
-        ModifiedBy:          r.IsDBNull(r.GetOrdinal("ModifiedBy")) ? null : r.GetString(r.GetOrdinal("ModifiedBy")),
-        ModifiedDate:        r.IsDBNull(r.GetOrdinal("ModifiedDate")) ? null : r.GetDateTime(r.GetOrdinal("ModifiedDate")));
+        CreatedBy: r.GetString(r.GetOrdinal("CreatedBy")),
+        CreatedDate: r.GetDateTime(r.GetOrdinal("CreatedDate")),
+        ModifiedBy: r.IsDBNull(r.GetOrdinal("ModifiedBy")) ? null : r.GetString(r.GetOrdinal("ModifiedBy")),
+        ModifiedDate: r.IsDBNull(r.GetOrdinal("ModifiedDate")) ? null : r.GetDateTime(r.GetOrdinal("ModifiedDate")));
 
     private static SalesOrderDocumentVersionResult MapVersion(SqlDataReader r) => new(
         SalesOrderDocumentVersionId: Convert.ToInt32(r.GetValue(r.GetOrdinal("SalesOrderDocumentVersionId"))),
-        DocumentId:                  Convert.ToInt32(r.GetValue(r.GetOrdinal("DocumentId"))),
-        VersionNumber:               Convert.ToInt32(r.GetValue(r.GetOrdinal("VersionNumber"))),
-        Comment:                     r.IsDBNull(r.GetOrdinal("Comment")) ? null : r.GetString(r.GetOrdinal("Comment")),
-        DocumentPath:                r.GetString(r.GetOrdinal("DocumentPath")),
-        ContentType:                 r.GetString(r.GetOrdinal("ContentType")),
-        MimeType:                    r.GetString(r.GetOrdinal("MimeType")),
-        SizeBytes:                   Convert.ToInt64(r.GetValue(r.GetOrdinal("SizeBytes"))),
-        CreatedBy:                   r.GetString(r.GetOrdinal("CreatedBy")),
-        CreatedDate:                 r.GetDateTime(r.GetOrdinal("CreatedDate")));
+        DocumentId: Convert.ToInt32(r.GetValue(r.GetOrdinal("DocumentId"))),
+        VersionNumber: Convert.ToInt32(r.GetValue(r.GetOrdinal("VersionNumber"))),
+        Comment: r.IsDBNull(r.GetOrdinal("Comment")) ? null : r.GetString(r.GetOrdinal("Comment")),
+        DocumentPath: r.GetString(r.GetOrdinal("DocumentPath")),
+        ContentType: r.GetString(r.GetOrdinal("ContentType")),
+        MimeType: r.GetString(r.GetOrdinal("MimeType")),
+        SizeBytes: Convert.ToInt64(r.GetValue(r.GetOrdinal("SizeBytes"))),
+        CreatedBy: r.GetString(r.GetOrdinal("CreatedBy")),
+        CreatedDate: r.GetDateTime(r.GetOrdinal("CreatedDate")));
 }
