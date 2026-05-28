@@ -12,6 +12,7 @@ using Relay.Documentum.Application.Queries.GetBrandAndQueuesAndMapping;
 using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
+using Relay.Documentum.Application.Queries.GetRegionsByBrand;
 using Relay.Documentum.Application.Queries.GetRouteToDepartment;
 using Relay.Documentum.Application.Commands.CreateDocumentVersion;
 using Relay.Documentum.Application.Commands.UploadSalesOrderDocument;
@@ -43,7 +44,8 @@ public static class DocumentumApplicationModule
         services.AddScoped<ICommandHandler<AddUserCommand, int>, AddUserCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateUserCommand, int>, UpdateUserCommandHandler>();
         services.AddScoped<IQueryHandler<GetBrandsQuery, IReadOnlyList<string>>, GetBrandsQueryHandler>();
-        services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<string>>, GetProductTypesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<ProductTypeDto>>, GetProductTypesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetRegionsByBrandQuery, IReadOnlyList<RegionDto>>, GetRegionsByBrandQueryHandler>();
         services.AddScoped<IQueryHandler<GetQueuesByBrandQuery, IReadOnlyList<string>>, GetQueuesByBrandQueryHandler>();
         services.AddScoped<IQueryHandler<GetRouteToDepartmentQuery, IReadOnlyList<string>>, GetRouteToDepartmentQueryHandler>();
 

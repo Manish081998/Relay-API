@@ -1,3 +1,4 @@
+using Relay.Documentum.Contracts.Dtos;
 using Relay.Documentum.Domain.Aggregates;
 
 namespace Relay.Documentum.Domain.Repositories;
@@ -26,7 +27,8 @@ public interface IEdgeOrderRepository
 
     Task<EdgeOrder?> GetByOrderSeqAsync(int orderSeq, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<string>> GetProductTypesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProductTypeDto>> GetProductTypesByBrandAsync(string brandName, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RegionDto>> GetRegionsByBrandAsync(string brandName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default);
 }

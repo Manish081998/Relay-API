@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Relay.Documentum.Contracts.Dtos;
 using Relay.Documentum.Domain.Aggregates;
 using Relay.Documentum.Domain.Repositories;
 using Relay.Documentum.Infrastructure.Persistence.DataModels;
@@ -124,18 +125,34 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         return brands;
     }
 
-    public async Task<IReadOnlyList<string>> GetProductTypesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ProductTypeDto>> GetProductTypesByBrandAsync(string brandName, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
-        await using var command = new SqlCommand(EdgeOrderQueries.GetProductTypes, (SqlConnection)connection);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetProductTypesByBrand, (SqlConnection)connection);
+        command.Parameters.AddWithValue("@BrandName", brandName);
 
-        var types = new List<string>();
+        var types = new List<ProductTypeDto>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            types.Add(reader.GetString(0));
+            types.Add(new ProductTypeDto(reader.GetInt32(0), reader.GetString(1)));
         }
         return types;
+    }
+
+    public async Task<IReadOnlyList<RegionDto>> GetRegionsByBrandAsync(string brandName, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetRegionsByBrand, (SqlConnection)connection);
+        command.Parameters.AddWithValue("@BrandName", brandName);
+
+        var regions = new List<RegionDto>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            regions.Add(new RegionDto(reader.GetInt32(0), reader.GetString(1)));
+        }
+        return regions;
     }
 
     public async Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default)
