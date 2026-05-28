@@ -13,4 +13,5 @@ public sealed class RelaySettings
     public JwtSettings JsonWebTokenKeys { get; set; } = new();
     public AppIdentitySettings AppIdentitySettings { get; set; } = new();
     public RelayFileLoggerOptions RelayLogging { get; set; } = new();
+    public FileStorageSettings FileStorage { get; set; } = new();
 }

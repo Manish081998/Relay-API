@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Relay.Api.Requests.Documentum;
 using Relay.Api.Routes;
+using Relay.Api.Services;
 using Relay.Documentum.Application.Commands.CreateDocumentVersion;
 using Relay.Documentum.Application.Commands.UploadSalesOrderDocument;
 using Relay.Documentum.Application.Queries.GetDocumentsByOrderSeq;
@@ -17,16 +18,16 @@ public sealed class SalesOrderDocumentController : ControllerBase
 {
     private readonly IQueryDispatcher _queries;
     private readonly ICommandDispatcher _commands;
-    private readonly IWebHostEnvironment _env;
+    private readonly IFileStorageService _storage;
 
     public SalesOrderDocumentController(
         IQueryDispatcher queries,
         ICommandDispatcher commands,
-        IWebHostEnvironment env)
+        IFileStorageService storage)
     {
         _queries  = queries  ?? throw new ArgumentNullException(nameof(queries));
         _commands = commands ?? throw new ArgumentNullException(nameof(commands));
-        _env      = env      ?? throw new ArgumentNullException(nameof(env));
+        _storage  = storage  ?? throw new ArgumentNullException(nameof(storage));
     }
 
     // ─── Upload new document ────────────────────────────────────────────────
@@ -41,27 +42,44 @@ public sealed class SalesOrderDocumentController : ControllerBase
         if (request.File is null || request.File.Length == 0)
             return BadRequest("File is required.");
 
-        var safeFileName = SanitizeFileName(request.File.FileName);
-        var mimeType     = request.File.ContentType;
-        var contentType  = GetContentTypeCategory(safeFileName);
+        var originalFileName = SanitizeFileName(request.File.FileName);
+        var mimeType         = request.File.ContentType;
+        var contentType      = GetContentTypeCategory(originalFileName);
 
-        // Build storage: FileStorage/assets/orders/{orderSeq}/{filename}/v1_{filename}
-        var folderRelative = Path.Combine("assets", "orders", request.OrderSeq.ToString(), safeFileName);
-        var folderAbsolute = Path.Combine(_env.ContentRootPath, "FileStorage", folderRelative);
-        Directory.CreateDirectory(folderAbsolute);
+        // ── Build display/storage name ──────────────────────────────────────
+        // Sales order doc: PO{repPO}_{originalName}_{MMddyyyy}.{ext}
+        // Support doc:     {originalName} (unchanged)
+        string documentName;
 
-        var versionFileName = $"v1_{safeFileName}";
-        var filePath = Path.Combine(folderAbsolute, versionFileName);
-
-        await using (var stream = new FileStream(filePath, FileMode.Create))
+        if (!request.IsSupportedDocument && !string.IsNullOrWhiteSpace(request.RepPO))
         {
-            await request.File.CopyToAsync(stream, cancellationToken);
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
+            var ext            = Path.GetExtension(originalFileName);
+            var dateSuffix     = DateTime.Now.ToString("MMddyyyy");
+            documentName = $"PO{request.RepPO}_{nameWithoutExt}_{dateSuffix}{ext}";
+        }
+        else
+        {
+            documentName = originalFileName;
         }
 
-        var documentPathRelative = Path.Combine(folderRelative, versionFileName).Replace('\\', '/');
+        // ── Build physical storage path ─────────────────────────────────────
+        // {BasePath}/{orderSeq}/{documentName}/v1_{documentName}
+        var folderRelative  = Path.Combine(request.OrderSeq.ToString(), documentName);
+        var folderAbsolute  = Path.Combine(_storage.BasePath, folderRelative);
+        var versionFileName = $"v1_{documentName}";
+        var filePath        = Path.Combine(folderAbsolute, versionFileName);
+
+        await using (var stream = request.File.OpenReadStream())
+        {
+            await _storage.SaveFileAsync(filePath, stream, cancellationToken);
+        }
+
+        // Relative path stored in DB (forward slashes for portability)
+        var documentPathRelative = $"{folderRelative}/{versionFileName}".Replace('\\', '/');
 
         var command = new UploadSalesOrderDocumentCommand(
-            request.OrderSeq, request.RepPO, request.BrandName, safeFileName,
+            request.OrderSeq, request.RepPO, request.BrandName, documentName,
             contentType, mimeType, request.File.Length, documentPathRelative,
             request.IsSupportedDocument, User.Identity?.Name ?? "system");
 
@@ -94,38 +112,38 @@ public sealed class SalesOrderDocumentController : ControllerBase
 
         var nextVersion = latestVersion is not null ? latestVersion.VersionNumber + 1 : 1;
 
-        // Determine storage folder from the latest version's path
-        string folderAbsolute;
+        // ── Determine storage folder from the latest version's path ─────────
         string folderRelative;
 
         if (latestVersion is not null)
         {
+            // e.g. "1623355/PO20212_Order Transmittal — 230121_05252026.pdf"
             folderRelative = Path.GetDirectoryName(latestVersion.DocumentPath)?.Replace('\\', '/') ?? "";
-            folderAbsolute = Path.Combine(_env.ContentRootPath, "FileStorage",
-                folderRelative.Replace('/', Path.DirectorySeparatorChar));
         }
         else
         {
             var safeName = SanitizeFileName(request.File.FileName);
-            folderRelative = $"assets/orders/unknown/{safeName}";
-            folderAbsolute = Path.Combine(_env.ContentRootPath, "FileStorage",
-                folderRelative.Replace('/', Path.DirectorySeparatorChar));
+            folderRelative = $"unknown/{safeName}";
         }
 
-        Directory.CreateDirectory(folderAbsolute);
+        var folderAbsolute = Path.Combine(_storage.BasePath,
+            folderRelative.Replace('/', Path.DirectorySeparatorChar));
 
-        var safeFileName = SanitizeFileName(request.File.FileName);
-        var versionFileName = $"v{nextVersion}_{safeFileName}";
-        var filePath = Path.Combine(folderAbsolute, versionFileName);
+        // ── Version file uses the document's stored name (from folder) ──────
+        // e.g. folder = "PO20212_Order Transmittal — 230121_05252026.pdf"
+        //      file   = "v2_PO20212_Order Transmittal — 230121_05252026.pdf"
+        var documentFolderName = Path.GetFileName(folderRelative);
+        var versionFileName    = $"v{nextVersion}_{documentFolderName}";
+        var filePath           = Path.Combine(folderAbsolute, versionFileName);
 
-        await using (var stream = new FileStream(filePath, FileMode.Create))
+        await using (var stream = request.File.OpenReadStream())
         {
-            await request.File.CopyToAsync(stream, cancellationToken);
+            await _storage.SaveFileAsync(filePath, stream, cancellationToken);
         }
 
         var documentPathRelative = $"{folderRelative}/{versionFileName}";
         var mimeType    = request.File.ContentType;
-        var contentType = GetContentTypeCategory(safeFileName);
+        var contentType = GetContentTypeCategory(documentFolderName);
 
         var command = new CreateDocumentVersionCommand(
             request.DocumentId, documentPathRelative, contentType, mimeType,
@@ -183,14 +201,14 @@ public sealed class SalesOrderDocumentController : ControllerBase
 
         // Security: prevent directory traversal
         var sanitized = path.Replace("..", "").Replace('\\', '/');
-        var fullPath = Path.Combine(_env.ContentRootPath, "FileStorage",
+        var fullPath = Path.Combine(_storage.BasePath,
             sanitized.Replace('/', Path.DirectorySeparatorChar));
 
-        if (!System.IO.File.Exists(fullPath))
+        if (!_storage.FileExists(fullPath))
             return NotFound("File not found.");
 
-        var mimeType = GetMimeType(fullPath);
-        var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var mimeType   = GetMimeType(fullPath);
+        var fileStream = _storage.OpenRead(fullPath);
         return File(fileStream, mimeType);
     }
 

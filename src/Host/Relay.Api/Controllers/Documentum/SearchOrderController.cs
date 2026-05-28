@@ -6,6 +6,7 @@ using Relay.Documentum.Application.Queries.GetEdgeOrderBySeq;
 using Relay.Documentum.Application.Queries.GetBrands;
 using Relay.Documentum.Application.Queries.GetProductTypes;
 using Relay.Documentum.Application.Queries.GetQueuesByBrand;
+using Relay.Documentum.Application.Queries.GetRegionsByBrand;
 using Relay.Documentum.Application.Queries.GetRouteToDepartment;
 using Relay.Documentum.Application.Queries.SearchEdgeOrders;
 using Relay.Documentum.Contracts.Dtos;
@@ -81,10 +82,23 @@ public sealed class SearchOrderController : ControllerBase
     }
 
     [HttpGet(ApiRoutes.Documentum.Orders.ProductTypes)]
-    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetProductTypes(CancellationToken cancellationToken = default)
+    [ProducesResponseType(typeof(IReadOnlyList<ProductTypeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProductTypes([FromQuery] string brandName, CancellationToken cancellationToken = default)
     {
-        var result = await _queries.SendAsync<GetProductTypesQuery, IReadOnlyList<string>>(new GetProductTypesQuery(), cancellationToken);
+        var result = await _queries.SendAsync<GetProductTypesQuery, IReadOnlyList<ProductTypeDto>>(
+            new GetProductTypesQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.Regions)]
+    [ProducesResponseType(typeof(IReadOnlyList<RegionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRegions([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetRegionsByBrandQuery, IReadOnlyList<RegionDto>>(
+            new GetRegionsByBrandQuery(brandName), cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
+using Relay.Api.Services;
 using Relay.Api.Settings;
 using Relay.CrossCutting.Email;
 using Relay.CrossCutting.ExceptionHandling;
@@ -18,6 +19,10 @@ public static class FrameworkExtensions
 
         services.Configure<EmailSettingsOptions>(configuration.GetSection("AppIdentitySettings:EmailSettings"));
         services.AddEmailService();
+
+        // File storage (configurable path + impersonation)
+        services.Configure<FileStorageSettings>(configuration.GetSection("FileStorage"));
+        services.AddSingleton<IFileStorageService, FileStorageService>();
 
         services.AddCors(options =>
         {
