@@ -13,4 +13,5 @@ public sealed record EdgeOrder(
     DateTime? OrderRecdDate,
     string? XmlMacPacOrder,
     string? Brand,
-    string? OrderSource);
+    string? OrderSource,
+    string? OrderGuid);

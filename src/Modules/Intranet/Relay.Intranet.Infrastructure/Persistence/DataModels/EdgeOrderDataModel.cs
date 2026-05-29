@@ -18,6 +18,7 @@ internal sealed class EdgeOrderDataModel
     public string? XmlMacPacOrder { get; init; }
     public string? Brand { get; init; }
     public string? OrderSource { get; init; }
+    public string? OrderGuid { get; init; }
 
     public static EdgeOrderDataModel FromRecord(IDataRecord record) => new()
     {
@@ -34,17 +35,30 @@ internal sealed class EdgeOrderDataModel
         XmlMacPacOrder   = GetString(record, "xmlMacPacOrder"),
         Brand            = GetString(record, "brand"),
         OrderSource      = GetString(record, "orderSource"),
+        OrderGuid        = GetStringSafe(record, "orderGuid"),
     };
 
     public EdgeOrder ToAggregate() => new(
         ReleaseNumber, ReleaseName, AccountNumber, Name, RepPO,
         LineItems, TotalNet, EmailId, MarketingProgram, OrderRecdDate,
-        XmlMacPacOrder, Brand, OrderSource);
+        XmlMacPacOrder, Brand, OrderSource, OrderGuid);
 
     private static string? GetString(IDataRecord record, string column)
     {
         var ordinal = record.GetOrdinal(column);
         return record.IsDBNull(ordinal) ? null : record.GetValue(ordinal)?.ToString();
+    }
+
+    // Safe variant: returns null if the column is absent rather than throwing.
+    private static string? GetStringSafe(IDataRecord record, string column)
+    {
+        for (var i = 0; i < record.FieldCount; i++)
+        {
+            if (!string.Equals(record.GetName(i), column, StringComparison.OrdinalIgnoreCase))
+                continue;
+            return record.IsDBNull(i) ? null : record.GetValue(i)?.ToString();
+        }
+        return null;
     }
 
     private static DateTime? GetNullableDateTime(IDataRecord record, string column)

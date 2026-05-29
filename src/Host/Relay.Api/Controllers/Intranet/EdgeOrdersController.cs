@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Relay.Api.Models;
 using Relay.Api.Requests.Intranet;
 using Relay.Api.Routes;
+using Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
 using Relay.Intranet.Application.Queries.SearchEdgeOrders;
 using Relay.Intranet.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -36,5 +38,31 @@ public sealed class EdgeOrdersController : ControllerBase
             cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Intranet.GetOrderByGuid)]
+    [ProducesResponseType(typeof(ApiResponse<EdgeOrderDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<EdgeOrderDetailDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<EdgeOrderDetailDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetByOrderGuid(
+        [FromQuery] GetEdgeOrderByGuidRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.OrderGuid is null)
+            return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("OrderGuid is required."));
+
+        if (string.IsNullOrWhiteSpace(request.RepPo))
+            return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("RepPo is required."));
+
+        var result = await _queries.SendAsync<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>(
+            new GetEdgeOrderByGuidQuery(request.OrderGuid.Value.ToString(), request.RepPo),
+            cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail(result.Error.Description));
+
+        if (result.Value is null)
+            return NotFound(ApiResponse<EdgeOrderDetailDto>.Fail("Order not found."));
+
+        return Ok(ApiResponse<EdgeOrderDetailDto>.Ok(result.Value));
     }
 }

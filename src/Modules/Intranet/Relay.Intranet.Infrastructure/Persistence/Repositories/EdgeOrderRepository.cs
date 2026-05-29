@@ -39,4 +39,15 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
                 PageSize      = pageSize,
             },
             cancellationToken: cancellationToken);
+
+    public Task<EdgeOrderDetail?> GetByOrderGuidAsync(
+        string orderGuid, string repPo,
+        CancellationToken cancellationToken = default) =>
+        _db.QuerySingleOrDefaultAsync(
+            Module,
+            EdgeOrderQueries.GetByOrderGuid,
+            r => EdgeOrderDetailDataModel.FromRecord(r).ToAggregate(),
+            new { OrderGuid = orderGuid, repPo = repPo },
+            CommandType.StoredProcedure,
+            cancellationToken);
 }

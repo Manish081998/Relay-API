@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Relay.Intranet.Application.Commands.UpdateUserByEmail;
+using Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
 using Relay.Intranet.Application.Queries.GetUserById;
 using Relay.Intranet.Application.Queries.SearchEdgeOrders;
 using Relay.Intranet.Contracts.Dtos;
@@ -14,6 +15,7 @@ public static class IntranetApplicationModule
         services.AddScoped<IQueryHandler<GetUserByIdQuery, UserDto?>, GetUserByIdQueryHandler>();
         services.AddScoped<ICommandHandler<UpdateUserByEmailCommand, UserDto>, UpdateUserByEmailCommandHandler>();
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedEdgeOrderResultDto>, SearchEdgeOrdersQueryHandler>();
+        services.AddScoped<IQueryHandler<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>, GetEdgeOrderByGuidQueryHandler>();
 
         return services;
     }
