@@ -14,4 +14,9 @@ public interface IEdgeOrderRepository
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<EdgeOrderDetail?> GetByOrderGuidAsync(
+        string orderGuid,
+        string repPo,
+        CancellationToken cancellationToken = default);
 }

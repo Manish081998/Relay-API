@@ -18,5 +18,6 @@ internal static class EdgeOrderMappers
         OrderRecdDate:    order.OrderRecdDate,
         XmlMacPacOrder:   order.XmlMacPacOrder,
         Brand:            order.Brand,
-        OrderSource:      order.OrderSource);
+        OrderSource:      order.OrderSource,
+        OrderGuid:        order.OrderGuid);
 }
