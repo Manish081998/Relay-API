@@ -4,6 +4,7 @@ using Relay.Api.Services;
 using Relay.Api.Settings;
 using Relay.CrossCutting.Email;
 using Relay.CrossCutting.ExceptionHandling;
+using Relay.Intranet.Application.Abstractions;
 
 namespace Relay.Api.Extensions;
 
@@ -23,6 +24,7 @@ public static class FrameworkExtensions
         // File storage (configurable path + impersonation)
         services.Configure<FileStorageSettings>(configuration.GetSection("FileStorage"));
         services.AddSingleton<IFileStorageService, FileStorageService>();
+        services.AddScoped<IStagingFileWriter, StagingFileWriter>();
 
         services.AddCors(options =>
         {

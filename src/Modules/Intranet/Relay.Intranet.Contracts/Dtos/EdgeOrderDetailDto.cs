@@ -69,7 +69,11 @@ public sealed record EdgeOrderDetailBrandAccountDto(
 public sealed record EdgeOrderDetailShippingMethodDto(
     string? ShipVia,
     string? NoPartial,
-    string? ShipTerms);
+    string? ShipTerms,
+    string? CallBeforeDelivery,
+    string? Terms,
+    string? MarkOrder,
+    string? ShippingInstructions);
 
 public sealed record EdgeOrderDetailShippingChargesDto(
     bool MadeInUsa,

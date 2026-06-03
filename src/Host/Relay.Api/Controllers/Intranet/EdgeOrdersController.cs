@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Relay.Api.Models;
 using Relay.Api.Requests.Intranet;
 using Relay.Api.Routes;
+using Relay.Intranet.Application.Commands.UpdateOrderSection;
 using Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
 using Relay.Intranet.Application.Queries.SearchEdgeOrders;
 using Relay.Intranet.Contracts.Dtos;
@@ -15,10 +16,12 @@ namespace Relay.Api.Controllers.Intranet;
 public sealed class EdgeOrdersController : ControllerBase
 {
     private readonly IQueryDispatcher _queries;
+    private readonly ICommandDispatcher _commands;
 
-    public EdgeOrdersController(IQueryDispatcher queries)
+    public EdgeOrdersController(IQueryDispatcher queries, ICommandDispatcher commands)
     {
         _queries = queries ?? throw new ArgumentNullException(nameof(queries));
+        _commands = commands ?? throw new ArgumentNullException(nameof(commands));
     }
 
     [HttpGet(ApiRoutes.Intranet.SearchEdgeOrders)]
@@ -54,7 +57,7 @@ public sealed class EdgeOrdersController : ControllerBase
             return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("RepPo is required."));
 
         var result = await _queries.SendAsync<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>(
-            new GetEdgeOrderByGuidQuery(request.OrderGuid.Value.ToString(), request.RepPo),
+            new GetEdgeOrderByGuidQuery(request.UserId, request.OrderGuid.Value.ToString(), request.RepPo),
             cancellationToken);
 
         if (!result.IsSuccess)
@@ -65,4 +68,40 @@ public sealed class EdgeOrdersController : ControllerBase
 
         return Ok(ApiResponse<EdgeOrderDetailDto>.Ok(result.Value));
     }
+
+    [HttpPut(ApiRoutes.Intranet.UpdateSection)]
+    public async Task<ActionResult<ApiResponse<bool>>> UpdateSection(
+        string orderGuid,
+        string sectionName,
+        string globalId,
+        [FromQuery] string fileName,
+        [FromQuery] string po,
+        [FromBody] OrderUpdateSectionRequest req,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(orderGuid))
+            return BadRequest(ApiResponse<bool>.Fail("OrderGuid is required."));
+
+        if (string.IsNullOrWhiteSpace(po))
+            return BadRequest(ApiResponse<bool>.Fail("Po is required."));
+
+        if (string.IsNullOrWhiteSpace(sectionName))
+            return BadRequest(ApiResponse<bool>.Fail("Section is required."));
+
+
+        var result = await _commands.SendAsync(
+            new UpdateOrderSectionCommand(
+                orderGuid,
+                po,
+                globalId,
+                sectionName,
+                fileName,
+                req.Fields),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(ApiResponse<bool>.Ok(result.Value))
+            : BadRequest(ApiResponse<bool>.Fail(result.Error.Description));
+    }
+
 }

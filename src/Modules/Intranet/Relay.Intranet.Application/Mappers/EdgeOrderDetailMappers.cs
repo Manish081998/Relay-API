@@ -5,7 +5,7 @@ namespace Relay.Intranet.Application.Mappers;
 
 internal static class EdgeOrderDetailMappers
 {
-    public static EdgeOrderDetailDto ToDto(this EdgeOrderDetail detail) => new(
+    public static EdgeOrderDetailDto ToDto(this EdgeOrderDetail detail, string? statusText = null, string? marshalFileLabel = null) => new(
         OrderGuid:        detail.OrderGuid,
         RepPoNumber:      detail.RepPoNumber,
         Brand:            detail.Brand,
@@ -22,8 +22,8 @@ internal static class EdgeOrderDetailMappers
         QuantityInfo:     detail.QuantityInfo,
         SpecialInfo:      detail.SpecialInfo,
         SpecialItems:     detail.SpecialItems?.ToDto(),
-        StatusText:       null,
-        MarshalFileLabel: null,
+        StatusText:       statusText,
+        MarshalFileLabel: marshalFileLabel,
         IsFastTrack:      detail.IsFastTrack,
         IsLocked:         detail.IsLocked);
 
@@ -50,7 +50,7 @@ internal static class EdgeOrderDetailMappers
         new(shipping.Method?.ToDto(), shipping.Charges?.ToDto());
 
     private static EdgeOrderDetailShippingMethodDto ToDto(this EdgeOrderDetailShippingMethod m) =>
-        new(m.ShipVia, m.NoPartial, m.ShipTerms);
+        new(m.ShipVia, m.NoPartial, m.ShipTerms, m.CallBeforeDelivery, m.Terms, m.MarkOrder, m.ShippingInstructions);
 
     private static EdgeOrderDetailShippingChargesDto ToDto(this EdgeOrderDetailShippingCharges c) =>
         new(c.MadeInUsa, c.CommentsToFactory, c.CustomerServiceRequest);
