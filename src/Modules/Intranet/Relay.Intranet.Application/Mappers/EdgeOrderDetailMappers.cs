@@ -5,7 +5,12 @@ namespace Relay.Intranet.Application.Mappers;
 
 internal static class EdgeOrderDetailMappers
 {
-    public static EdgeOrderDetailDto ToDto(this EdgeOrderDetail detail, string? statusText = null, string? marshalFileLabel = null) => new(
+    public static EdgeOrderDetailDto ToDto(
+        this EdgeOrderDetail detail,
+        string? statusText = null,
+        string? marshalFileLabel = null,
+        IEnumerable<(string Code, string Description)>? plantCodes = null,
+        IEnumerable<(string Code, string Description)>? shipTerms = null) => new(
         OrderGuid:        detail.OrderGuid,
         RepPoNumber:      detail.RepPoNumber,
         Brand:            detail.Brand,
@@ -25,7 +30,9 @@ internal static class EdgeOrderDetailMappers
         StatusText:       statusText,
         MarshalFileLabel: marshalFileLabel,
         IsFastTrack:      detail.IsFastTrack,
-        IsLocked:         detail.IsLocked);
+        IsLocked:         detail.IsLocked,
+        PlantCodes:       plantCodes?.Select(p => new LookupItemDto(p.Code, p.Description)).ToList() ?? [],
+        ShipTerms:        shipTerms?.Select(s => new LookupItemDto(s.Code, s.Description)).ToList() ?? []);
 
     private static EdgeOrderDetailInfoDto ToDto(this EdgeOrderDetailInfo info) =>
         new(info.RepPoNo, info.OrderDate, info.FaxEmail);

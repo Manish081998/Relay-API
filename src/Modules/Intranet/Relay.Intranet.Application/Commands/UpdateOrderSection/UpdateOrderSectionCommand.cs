@@ -8,4 +8,5 @@ public sealed record UpdateOrderSectionCommand(
     string UserId,
     string SectionName,
     string FileName,
+    string Brand,
     Dictionary<string, string> Fields) : ICommand<bool>;

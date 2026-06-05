@@ -17,6 +17,7 @@ public sealed class FileStorageSettings
     /// Example: "C:\ASC_EDI\"
     /// </summary>
     public string StagingDir { get; set; } = string.Empty;
+    public string WorkingDir { get; set; } = string.Empty;
 
     /// <summary>
     /// Impersonation credentials for accessing a remote file server.

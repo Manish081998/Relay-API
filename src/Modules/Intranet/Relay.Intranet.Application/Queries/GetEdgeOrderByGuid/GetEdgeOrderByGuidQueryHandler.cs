@@ -28,11 +28,13 @@ internal sealed class GetEdgeOrderByGuidQueryHandler : IQueryHandler<GetEdgeOrde
             return Result.Failure<EdgeOrderDetailDto?>(
                 new AppError("Order.SpError", detail.ErrorMessage));
 
+        var plantCodes = _orders.GetPlantCodes();
+        var shipTerms = _orders.GetShipTerms();
+
         if (detail?.FinalEdiOrderXml is not null)
         {
             fileName = $"{query.RepPo}_{query.OrderGuid}.xml";
             await _stagingWriter.WriteAsync(fileName, detail.FinalEdiOrderXml, cancellationToken);
-            //return Result.Success<EdgeOrderDetailDto?>(detail.ToDto() with { FileName = fileName });
         }
 
         // Track that this user has the PO open
@@ -47,7 +49,9 @@ internal sealed class GetEdgeOrderByGuidQueryHandler : IQueryHandler<GetEdgeOrde
             marshalFileLabel = $"Created Type Link File On {submitStatus.UpdatedTime} by User {submitStatus.UserId}";
         }
         return Result.Success<EdgeOrderDetailDto?>(detail.ToDto(
-            statusText:       ediStatus.FirstOrDefault()?.Status,
-            marshalFileLabel: marshalFileLabel));
+            statusText: ediStatus.FirstOrDefault()?.Status,
+            marshalFileLabel: marshalFileLabel,
+            plantCodes: plantCodes,
+            shipTerms: shipTerms));
     }
 }
