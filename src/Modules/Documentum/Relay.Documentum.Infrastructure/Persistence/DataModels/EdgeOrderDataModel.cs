@@ -19,7 +19,7 @@ internal sealed class EdgeOrderDataModel
     public DateTime? OrderRecdDate { get; init; }
     public string RepUserName { get; init; }
     public string? SalesOrderNumber { get; init; }
-    public string? Priority { get; init; }
+    public int Priority { get; init; }
     public string? RepName { get; init; }
     public string? QueueName { get; init; }
     public string? ProductType { get; init; }
@@ -45,7 +45,7 @@ internal sealed class EdgeOrderDataModel
         TotalNet         = record.IsDBNull(record.GetOrdinal("totalNet"))           ? null : record.GetString(record.GetOrdinal("totalNet")),
         OrderRecdDate    = record.IsDBNull(record.GetOrdinal("OrderRecdDate"))      ? null : record.GetDateTime(record.GetOrdinal("OrderRecdDate")),
         SalesOrderNumber = record.IsDBNull(record.GetOrdinal("SalesOrderNumber"))   ? null : record.GetString(record.GetOrdinal("SalesOrderNumber")),
-        Priority         = record.IsDBNull(record.GetOrdinal("Priority"))           ? null : record.GetString(record.GetOrdinal("Priority")),
+        Priority         = record.IsDBNull(record.GetOrdinal("Priority"))           ? 0 : record.GetInt32(record.GetOrdinal("Priority")),
         RepName          = record.IsDBNull(record.GetOrdinal("RepName"))            ? null : record.GetString(record.GetOrdinal("RepName")),
         QueueName        = record.IsDBNull(record.GetOrdinal("QueueName"))          ? null : record.GetString(record.GetOrdinal("QueueName")),
         ProductType      = record.IsDBNull(record.GetOrdinal("ProductType"))        ? null : record.GetString(record.GetOrdinal("ProductType")),

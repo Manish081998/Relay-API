@@ -11,6 +11,7 @@ public static class IntranetInfrastructureModule
     /// The module key used to look up a connection string from configuration.
     /// </summary>
     public const string ModuleName = "Intranet";
+    public const string EdgeOrders = "EdgeOrders";
 
     public static IServiceCollection AddIntranetInfrastructure(this IServiceCollection services)
     {

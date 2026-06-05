@@ -83,7 +83,8 @@ internal sealed class EdgeOrderDetailDataModel
             SpecialInfo:      ParseDictionary(tts?.Element("SpecialInfo")),
             SpecialItems:     ParseSpecialItems(tts?.Element("SpecialItems")),
             IsFastTrack: IsFastTrack,
-            IsLocked:    false);
+            IsLocked:    false,
+            FinalEdiOrderXml: FinalEdiOrderXml);
     }
 
     private static EdgeOrderDetailInfo ParseInfo(XElement? orderInfoEl, XElement? accountInfoEl) => new(
@@ -134,9 +135,13 @@ internal sealed class EdgeOrderDetailDataModel
 
         return new EdgeOrderDetailShipping(
             Method: new EdgeOrderDetailShippingMethod(
-                ShipVia:   GetValue(methodEl, "ShipVia"),
-                NoPartial: GetValue(methodEl, "NoPartial"),
-                ShipTerms: GetValue(methodEl, "ShipTerms")),
+                ShipVia:              GetValue(methodEl, "ShipVia"),
+                NoPartial:            GetValue(methodEl, "NoPartial"),
+                ShipTerms:            GetValue(methodEl, "ShipTerms"),
+                CallBeforeDelivery:   GetValue(methodEl, "CallBeforeDelivery"),
+                Terms:                GetValue(methodEl, "Terms"),
+                MarkOrder:            GetValue(methodEl, "MarkOrder"),
+                ShippingInstructions: GetValue(methodEl, "ShippingInstructions")),
             Charges: new EdgeOrderDetailShippingCharges(
                 MadeInUsa:              ParseYesNo(GetValue(chargesEl, "MadeinUSA")),
                 CommentsToFactory:      GetValue(chargesEl, "CommentsToFactory"),

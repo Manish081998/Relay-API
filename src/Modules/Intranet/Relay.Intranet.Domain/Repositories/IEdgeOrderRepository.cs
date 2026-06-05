@@ -19,4 +19,22 @@ public interface IEdgeOrderRepository
         string orderGuid,
         string repPo,
         CancellationToken cancellationToken = default);
+
+    Task TrackOrderChangesAsync(
+        string orderGuid,
+        string repPo,
+        string userId,
+        string newValue,
+        string sectionName,
+        string finalXml,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> IsValidStateForCountryAsync(string state, string country, string brand, CancellationToken cancellationToken = default);
+    Task TrackUserPOAsync(string userId, string brandName, string po, string fileName, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EdiStatus>> GetEdiStatusAsync(string repPo, CancellationToken cancellationToken = default);
+    Task<EdiSubmitStatus?> GetEdiSubmitStatusAsync(string orderGuid, string repPo, CancellationToken cancellationToken = default);
+
+    Task<FieldTypeData> GetFieldTypesAsync(string brand, CancellationToken cancellationToken = default);
+    IReadOnlyList<(string Code, string Description)> GetPlantCodes();
+    IReadOnlyList<(string Code, string Description)> GetShipTerms();
 }

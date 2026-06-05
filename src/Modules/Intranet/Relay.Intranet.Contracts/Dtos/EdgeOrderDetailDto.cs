@@ -20,7 +20,11 @@ public sealed record EdgeOrderDetailDto(
     string? StatusText,
     string? MarshalFileLabel,
     bool IsFastTrack,
-    bool IsLocked);
+    bool IsLocked,
+    IReadOnlyList<LookupItemDto> PlantCodes,
+    IReadOnlyList<LookupItemDto> ShipTerms);
+
+public sealed record LookupItemDto(string Code, string Description);
 
 public sealed record EdgeOrderDetailInfoDto(
     string? RepPoNo,
@@ -69,7 +73,11 @@ public sealed record EdgeOrderDetailBrandAccountDto(
 public sealed record EdgeOrderDetailShippingMethodDto(
     string? ShipVia,
     string? NoPartial,
-    string? ShipTerms);
+    string? ShipTerms,
+    string? CallBeforeDelivery,
+    string? Terms,
+    string? MarkOrder,
+    string? ShippingInstructions);
 
 public sealed record EdgeOrderDetailShippingChargesDto(
     bool MadeInUsa,

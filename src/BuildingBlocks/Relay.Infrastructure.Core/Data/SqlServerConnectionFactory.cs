@@ -30,6 +30,10 @@ public sealed class SqlServerConnectionFactory : IDbConnectionFactory
             "Intranet"   => _connectionStrings.Intranet,
             "Documentum" => _connectionStrings.Documentum,
             "WebTool"  => _connectionStrings.WebTool,
+            "Krueger" => _connectionStrings.Krueger,
+            "Titus" => _connectionStrings.Titus,
+            "TNB" => _connectionStrings.TNB,
+            "EdgeOrders" => _connectionStrings.EdgeOrders,
             _ => throw new InvalidOperationException(
                     $"No connection string configured for module '{moduleName}'.")
         };

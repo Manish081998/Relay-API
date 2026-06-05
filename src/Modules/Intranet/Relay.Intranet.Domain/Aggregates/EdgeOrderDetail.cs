@@ -19,7 +19,8 @@ public sealed record EdgeOrderDetail(
     EdgeOrderDetailSpecialItems? SpecialItems,
     bool IsFastTrack,
     bool IsLocked,
-    string? ErrorMessage = null);
+    string? ErrorMessage = null,
+    string? FinalEdiOrderXml = null);
 
 public sealed record EdgeOrderDetailInfo(
     string? RepPoNo,
@@ -68,7 +69,11 @@ public sealed record EdgeOrderDetailBrandAccount(
 public sealed record EdgeOrderDetailShippingMethod(
     string? ShipVia,
     string? NoPartial,
-    string? ShipTerms);
+    string? ShipTerms,
+    string? CallBeforeDelivery,
+    string? Terms,
+    string? MarkOrder,
+    string? ShippingInstructions);
 
 public sealed record EdgeOrderDetailShippingCharges(
     bool MadeInUsa,

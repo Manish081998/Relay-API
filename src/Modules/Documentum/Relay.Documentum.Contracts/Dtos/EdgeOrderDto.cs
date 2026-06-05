@@ -15,7 +15,7 @@ public sealed record EdgeOrderDto(
     string TotalNet,
     DateTime? OrderRecdDate,
     string? SalesOrderNumber,
-    string? Priority,
+    int? Priority,
     string? RepName,
     string? QueueName,
     string? ProductType,
