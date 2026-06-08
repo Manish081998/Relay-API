@@ -111,7 +111,7 @@ public sealed class UpdateOrderSectionCommandHandler : ICommandHandler<UpdateOrd
                 _ => root.Element(command.SectionName)?.ToString()
             } ?? string.Empty;
 
-            await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.RepPo, command.UserId, sectionXml, command.SectionName, updatedXml, cancellationToken);
+            await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.RepPo, command.UserId, sectionXml, command.SectionName, updatedXml,command.Brand, cancellationToken);
             return Result.Success(true);
         }
         catch (Exception ex)

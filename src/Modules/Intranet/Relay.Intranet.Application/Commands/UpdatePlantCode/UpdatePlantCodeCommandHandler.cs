@@ -40,7 +40,7 @@ public sealed class UpdatePlantCodeCommandHandler : ICommandHandler<UpdatePlantC
         updatedXml = doc.ToString();
         // Save updated file on the file location
         await _stagingWriter.WriteAsync(FileName, updatedXml, cancellationToken);
-        await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.Po, command.UserId, command.NewPlantCode, targetElement, updatedXml, cancellationToken);
+        await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.Po, command.UserId, command.NewPlantCode, targetElement, updatedXml, "", cancellationToken);
         return Result.Success(true);
     }
 
