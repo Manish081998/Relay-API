@@ -52,14 +52,11 @@ public sealed class EdgeOrdersController : ControllerBase
     public async Task<IActionResult> GetByOrderGuid(
         [FromQuery] GetEdgeOrderByGuidRequest request, CancellationToken cancellationToken = default)
     {
-        if (request.OrderGuid is null)
-            return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("OrderGuid is required."));
-
         if (string.IsNullOrWhiteSpace(request.RepPo))
             return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("RepPo is required."));
 
         var result = await _queries.SendAsync<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>(
-            new GetEdgeOrderByGuidQuery(request.UserId, request.OrderGuid.Value.ToString(), request.RepPo),
+            new GetEdgeOrderByGuidQuery(request.UserId, request.OrderGuid?.ToString(), request.RepPo),
             cancellationToken);
 
         if (!result.IsSuccess)

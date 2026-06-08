@@ -27,9 +27,12 @@ public interface IEdgeOrderRepository
         string newValue,
         string sectionName,
         string finalXml,
+        string brandName,
         CancellationToken cancellationToken = default);
 
-    Task<bool> IsValidStateForCountryAsync(string state, string country, string brand, CancellationToken cancellationToken = default);
+    Task<bool> IsValidStateForCountryAsync(string state, string country,string brand, CancellationToken cancellationToken = default);
+
+    Task<bool> CheckForValidPO(string poNumber, CancellationToken cancellationToken = default);
     Task TrackUserPOAsync(string userId, string brandName, string po, string fileName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EdiStatus>> GetEdiStatusAsync(string repPo, CancellationToken cancellationToken = default);
     Task<EdiSubmitStatus?> GetEdiSubmitStatusAsync(string orderGuid, string repPo, CancellationToken cancellationToken = default);

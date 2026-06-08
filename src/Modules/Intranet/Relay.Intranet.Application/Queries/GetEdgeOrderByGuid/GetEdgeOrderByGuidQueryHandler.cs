@@ -21,6 +21,13 @@ internal sealed class GetEdgeOrderByGuidQueryHandler : IQueryHandler<GetEdgeOrde
         GetEdgeOrderByGuidQuery query, CancellationToken cancellationToken = default)
     {
         var fileName = string.Empty;
+
+        var isValidPO = await _orders.CheckForValidPO(query.RepPo);
+        if (!isValidPO)
+        {
+            return Result.Failure<EdgeOrderDetailDto?>(
+                new AppError("Order Error", "Invalid PO number"));
+        }
         var detail = await _orders.GetByOrderGuidAsync(
             query.OrderGuid, query.RepPo, cancellationToken);
 
@@ -33,14 +40,14 @@ internal sealed class GetEdgeOrderByGuidQueryHandler : IQueryHandler<GetEdgeOrde
 
         if (detail?.FinalEdiOrderXml is not null)
         {
-            fileName = $"{query.RepPo}_{query.OrderGuid}.xml";
+            fileName = $"{query.RepPo}_{detail.OrderGuid}.xml";
             await _stagingWriter.WriteAsync(fileName, detail.FinalEdiOrderXml, cancellationToken);
         }
 
         // Track that this user has the PO open
         await _orders.TrackUserPOAsync(query.UserId, detail.Brand, query.RepPo, fileName);
-        var ediStatus = await _orders.GetEdiStatusAsync(detail.RepPoNumber);
-        var submitStatus = await _orders.GetEdiSubmitStatusAsync(query.OrderGuid, query.RepPo);
+        var ediStatus = await _orders.GetEdiStatusAsync(query.RepPo);
+        var submitStatus = await _orders.GetEdiSubmitStatusAsync(detail.OrderGuid, query.RepPo);
 
         string? marshalFileLabel = null;
         if (submitStatus != null &&

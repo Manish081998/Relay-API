@@ -58,7 +58,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
     public async Task TrackOrderChangesAsync(
         string orderGuid, string repPo, string userId,
-        string newValue, string sectionName, string finalXml,
+        string newValue, string sectionName, string finalXml, string brandName,
         CancellationToken cancellationToken = default)
     {
         try
@@ -74,6 +74,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
                     newvalue = newValue,
                     elementname = sectionName,
                     FinalXML = finalXml,
+                    brand = brandName,
                 },
                 CommandType.StoredProcedure,
                 cancellationToken);
@@ -88,6 +89,18 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
             brand,
             EdgeOrderQueries.ValidateState,
             new { State = state, Country = country },
+            cancellationToken: cancellationToken);
+
+        return count > 0;
+    }
+
+    public async Task<bool> CheckForValidPO(
+        string poNumber, CancellationToken cancellationToken = default)
+    {
+        var count = await _db.ExecuteScalarAsync<int>(
+            EdgeOrders,
+            EdgeOrderQueries.CheckForValidOrder,
+            new { po = poNumber, },
             cancellationToken: cancellationToken);
 
         return count > 0;
