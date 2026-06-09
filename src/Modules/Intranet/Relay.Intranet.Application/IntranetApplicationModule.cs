@@ -4,6 +4,7 @@ using Relay.Intranet.Application.Commands.UpdatePlantCode;
 using Relay.Intranet.Application.Commands.UpdateOrderSection;
 using Relay.Intranet.Application.Commands.UpdateUserByEmail;
 using Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
+using Relay.Intranet.Application.Queries.GetEdiStatus;
 using Relay.Intranet.Application.Queries.GetUserById;
 using Relay.Intranet.Application.Queries.SearchEdgeOrders;
 using Relay.Intranet.Contracts.Dtos;
@@ -22,6 +23,7 @@ public static class IntranetApplicationModule
         services.AddScoped<ICommandHandler<UpdatePlantCodeCommand, bool>, UpdatePlantCodeCommandHandler>();
         services.AddScoped<IQueryHandler<SearchEdgeOrdersQuery, PagedEdgeOrderResultDto>, SearchEdgeOrdersQueryHandler>();
         services.AddScoped<IQueryHandler<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>, GetEdgeOrderByGuidQueryHandler>();
+        services.AddScoped<IQueryHandler<GetEdiStatusQuery, IReadOnlyList<EdiStatusDto>>, GetEdiStatusQueryHandler>();
 
         return services;
     }
