@@ -99,16 +99,16 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
     public async Task<EdgeOrder?> GetByOrderSeqAsync(int orderSeq, CancellationToken cancellationToken = default)
     {
-        // Reuse the search SP with orderSeq filter — guaranteed to work with existing schema
-        var (items, _) = await SearchAsync(
-            salesOrderNumber: null, repPO: null, accountNumber: null,
-            productType: null, region: null, priority: null, brand: null,
-            captureDateFrom: null, captureDateTo: null, jobName: null,
-            queueName: null, packageOwner: null, repName: null,
-            sortField: null, sortDirection: null,
-            pageNumber: 1, pageSize: 1000, cancellationToken: cancellationToken);
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
+        await using var command = new SqlCommand(EdgeOrderQueries.GetByOrderSeq, (SqlConnection)connection);
+        command.Parameters.AddWithValue("@OrderSeq", orderSeq);
 
-        return items.FirstOrDefault(o => o.OrderSeq == orderSeq);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (await reader.ReadAsync(cancellationToken))
+        {
+            return EdgeOrderDataModel.FromRecord(reader).ToDomain();
+        }
+        return null;
     }
 
     public async Task<IReadOnlyList<string>> GetDistinctBrandsAsync(CancellationToken cancellationToken = default)
@@ -170,17 +170,17 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
         return queues;
     }
 
-    public async Task<IReadOnlyList<string>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<RouteToDepartmentDto>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(Module, cancellationToken);
         await using var command = new SqlCommand(EdgeOrderQueries.GetRouteToDepartmentQueues, (SqlConnection)connection);
         command.Parameters.AddWithValue("@BrandName", brandName);
 
-        var queues = new List<string>();
+        var queues = new List<RouteToDepartmentDto>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            queues.Add(reader.GetString(0));
+            queues.Add(new RouteToDepartmentDto(reader.GetInt32(0), reader.GetString(1)));
         }
         return queues;
     }

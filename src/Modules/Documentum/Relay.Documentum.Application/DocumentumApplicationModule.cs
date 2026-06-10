@@ -1,5 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Relay.Documentum.Application.Commands.AddUser;
+using Relay.Documentum.Application.Commands.ProcessWorkflowAction;
+using Relay.Documentum.Application.Queries.GetWorkflowHistory;
+using Relay.Documentum.Application.Queries.GetWorkflowState;
 using Relay.Documentum.Application.Commands.UpdateUser;
 using Relay.Documentum.Application.Queries.GetAllBrands;
 using Relay.Documentum.Application.Commands.AddQueue;
@@ -47,13 +50,18 @@ public static class DocumentumApplicationModule
         services.AddScoped<IQueryHandler<GetProductTypesQuery, IReadOnlyList<ProductTypeDto>>, GetProductTypesQueryHandler>();
         services.AddScoped<IQueryHandler<GetRegionsByBrandQuery, IReadOnlyList<RegionDto>>, GetRegionsByBrandQueryHandler>();
         services.AddScoped<IQueryHandler<GetQueuesByBrandQuery, IReadOnlyList<string>>, GetQueuesByBrandQueryHandler>();
-        services.AddScoped<IQueryHandler<GetRouteToDepartmentQuery, IReadOnlyList<string>>, GetRouteToDepartmentQueryHandler>();
+        services.AddScoped<IQueryHandler<GetRouteToDepartmentQuery, IReadOnlyList<RouteToDepartmentDto>>, GetRouteToDepartmentQueryHandler>();
 
         // Sales Order Documents
         services.AddScoped<ICommandHandler<UploadSalesOrderDocumentCommand, UploadDocumentResultDto>, UploadSalesOrderDocumentCommandHandler>();
         services.AddScoped<ICommandHandler<CreateDocumentVersionCommand, UploadDocumentResultDto>, CreateDocumentVersionCommandHandler>();
         services.AddScoped<IQueryHandler<GetDocumentsByOrderSeqQuery, IReadOnlyList<SalesOrderDocumentDto>>, GetDocumentsByOrderSeqQueryHandler>();
         services.AddScoped<IQueryHandler<GetDocumentVersionsQuery, IReadOnlyList<SalesOrderDocumentVersionDto>>, GetDocumentVersionsQueryHandler>();
+
+        // Workflow
+        services.AddScoped<ICommandHandler<ProcessWorkflowActionCommand, WorkflowActionResultDto>, ProcessWorkflowActionCommandHandler>();
+        services.AddScoped<IQueryHandler<GetWorkflowStateQuery, WorkflowStateDto?>, GetWorkflowStateQueryHandler>();
+        services.AddScoped<IQueryHandler<GetWorkflowHistoryQuery, IReadOnlyList<WorkflowHistoryItemDto>>, GetWorkflowHistoryQueryHandler>();
 
         // Sales Order Notes
         services.AddScoped<ICommandHandler<AddSalesOrderNoteCommand, long>, AddSalesOrderNoteCommandHandler>();

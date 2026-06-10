@@ -23,7 +23,7 @@ public sealed class GetDocumentsByOrderSeqQueryHandler
             d.DocumentId, d.OrderSeq, d.RepPO, d.BrandName, d.DocumentName,
             d.ContentType, d.MimeType, d.SizeBytes, d.CurrentVersion,
             d.IsSupportedDocument, d.CreatedBy, d.CreatedDate,
-            d.ModifiedBy, d.ModifiedDate)).ToList();
+            d.ModifiedBy, d.ModifiedDate, d.CreatedByName)).ToList();
 
         return Result.Success<IReadOnlyList<SalesOrderDocumentDto>>(dtos);
     }

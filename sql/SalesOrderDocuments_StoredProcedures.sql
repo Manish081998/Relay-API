@@ -122,11 +122,11 @@ END;
 GO
 
 -- 3. Get documents by OrderSeq (with optional IsSupportedDocument filter)
-IF OBJECT_ID('dbo.usp_GetDocumentsByOrderSeq', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.usp_GetDocumentsByOrderSeq;
+IF OBJECT_ID('dbo.usp_GetSalesOrderDocuments', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.usp_GetSalesOrderDocuments;
 GO
 
-CREATE PROCEDURE [dbo].[usp_GetDocumentsByOrderSeq]
+CREATE PROCEDURE [dbo].[usp_GetSalesOrderDocuments]
     @OrderSeq            INT,
     @IsSupportedDocument BIT = NULL
 AS
@@ -134,53 +134,57 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        DocumentId,
-        OrderSeq,
-        RepPO,
-        BrandName,
-        DocumentName,
-        ContentType,
-        MimeType,
-        SizeBytes,
-        CurrentVersion,
-        IsSupportedDocument,
-        IsActive,
-        CreatedBy,
-        CreatedDate,
-        ModifiedBy,
-        ModifiedDate
-    FROM [dbo].[SalesOrderDocumentDetails]
-    WHERE OrderSeq = @OrderSeq
-      AND IsActive = 1
-      AND (@IsSupportedDocument IS NULL OR IsSupportedDocument = @IsSupportedDocument)
-    ORDER BY CreatedDate DESC;
+        d.DocumentId,
+        d.OrderSeq,
+        d.RepPO,
+        d.BrandName,
+        d.DocumentName,
+        d.ContentType,
+        d.MimeType,
+        d.SizeBytes,
+        d.CurrentVersion,
+        d.IsSupportedDocument,
+        d.IsActive,
+        d.CreatedBy,
+        d.CreatedDate,
+        d.ModifiedBy,
+        d.ModifiedDate,
+        ISNULL(NULLIF(LTRIM(RTRIM(ISNULL(u.FirstName, '') + ' ' + ISNULL(u.LastName, ''))), ''), d.CreatedBy) AS CreatedByName
+    FROM [dbo].[SalesOrderDocumentDetails] d
+    LEFT JOIN [dbo].[UserMaster] u ON u.GlobalID = d.CreatedBy
+    WHERE d.OrderSeq = @OrderSeq
+      AND d.IsActive = 1
+      AND (@IsSupportedDocument IS NULL OR d.IsSupportedDocument = @IsSupportedDocument)
+    ORDER BY d.CreatedDate DESC;
 END;
 GO
 
 -- 4. Get all versions for a document
-IF OBJECT_ID('dbo.usp_GetDocumentVersions', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.usp_GetDocumentVersions;
+IF OBJECT_ID('dbo.usp_GetSalesOrderDocVersions', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.usp_GetSalesOrderDocVersions;
 GO
 
-CREATE PROCEDURE [dbo].[usp_GetDocumentVersions]
+CREATE PROCEDURE [dbo].[usp_GetSalesOrderDocVersions]
     @DocumentId INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        SalesOrderDocumentVersionId,
-        DocumentId,
-        VersionNumber,
-        Comment,
-        DocumentPath,
-        ContentType,
-        MimeType,
-        SizeBytes,
-        CreatedBy,
-        CreatedDate
-    FROM [dbo].[SalesOrderDocumentVersionDetails]
-    WHERE DocumentId = @DocumentId
-    ORDER BY VersionNumber DESC;
+        v.SalesOrderDocumentVersionId,
+        v.DocumentId,
+        v.VersionNumber,
+        v.Comment,
+        v.DocumentPath,
+        v.ContentType,
+        v.MimeType,
+        v.SizeBytes,
+        v.CreatedBy,
+        v.CreatedDate,
+        ISNULL(NULLIF(LTRIM(RTRIM(ISNULL(u.FirstName, '') + ' ' + ISNULL(u.LastName, ''))), ''), v.CreatedBy) AS CreatedByName
+    FROM [dbo].[SalesOrderDocumentVersionDetails] v
+    LEFT JOIN [dbo].[UserMaster] u ON u.GlobalID = v.CreatedBy
+    WHERE v.DocumentId = @DocumentId
+    ORDER BY v.VersionNumber DESC;
 END;
 GO

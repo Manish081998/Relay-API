@@ -18,4 +18,5 @@ public sealed record SalesOrderNoteResult(
     string CreatedBy,
     DateTime CreatedDate,
     string? ModifiedBy,
-    DateTime? ModifiedDate);
+    DateTime? ModifiedDate,
+    string? CreatedByName);

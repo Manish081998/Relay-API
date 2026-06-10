@@ -8,4 +8,5 @@ public sealed record SalesOrderNoteDto(
     string CreatedBy,
     DateTime CreatedDate,
     string? ModifiedBy,
-    DateTime? ModifiedDate);
+    DateTime? ModifiedDate,
+    string? CreatedByName);

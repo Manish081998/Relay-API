@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 using Relay.Api.Services;
 using Relay.Api.Settings;
+using Relay.CrossCutting.Templates;
 using Relay.CrossCutting.Email;
 using Relay.CrossCutting.ExceptionHandling;
 using Relay.Intranet.Application.Abstractions;
@@ -20,6 +21,9 @@ public static class FrameworkExtensions
 
         services.Configure<EmailSettingsOptions>(configuration.GetSection("AppIdentitySettings:EmailSettings"));
         services.AddEmailService();
+
+        // Workflow comment templates (from workflow-comments.json)
+        services.Configure<WorkflowCommentTemplates>(configuration.GetSection("WorkflowCommentTemplates"));
 
         // File storage (configurable path + impersonation)
         services.Configure<FileStorageSettings>(configuration.GetSection("FileStorage"));

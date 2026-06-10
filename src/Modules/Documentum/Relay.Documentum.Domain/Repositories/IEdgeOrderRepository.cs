@@ -30,5 +30,5 @@ public interface IEdgeOrderRepository
     Task<IReadOnlyList<ProductTypeDto>> GetProductTypesByBrandAsync(string brandName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<RegionDto>> GetRegionsByBrandAsync(string brandName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetQueuesByBrandAsync(string brandName, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<string>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RouteToDepartmentDto>> GetRouteToDepartmentQueuesAsync(string brandName, CancellationToken cancellationToken = default);
 }

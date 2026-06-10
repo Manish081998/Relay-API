@@ -21,7 +21,7 @@ public sealed class GetSalesOrderNotesQueryHandler
 
         var dtos = items.Select(n => new SalesOrderNoteDto(
             n.SalesOrderNoteId, n.OrderSeq, n.NotesDescription, n.IsActive,
-            n.CreatedBy, n.CreatedDate, n.ModifiedBy, n.ModifiedDate)).ToList();
+            n.CreatedBy, n.CreatedDate, n.ModifiedBy, n.ModifiedDate, n.CreatedByName)).ToList();
 
         return Result.Success<IReadOnlyList<SalesOrderNoteDto>>(dtos);
     }

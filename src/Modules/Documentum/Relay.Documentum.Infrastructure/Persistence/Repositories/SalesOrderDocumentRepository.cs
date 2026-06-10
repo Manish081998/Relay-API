@@ -172,7 +172,8 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         CreatedBy: r.GetString(r.GetOrdinal("CreatedBy")),
         CreatedDate: r.GetDateTime(r.GetOrdinal("CreatedDate")),
         ModifiedBy: r.IsDBNull(r.GetOrdinal("ModifiedBy")) ? null : r.GetString(r.GetOrdinal("ModifiedBy")),
-        ModifiedDate: r.IsDBNull(r.GetOrdinal("ModifiedDate")) ? null : r.GetDateTime(r.GetOrdinal("ModifiedDate")));
+        ModifiedDate: r.IsDBNull(r.GetOrdinal("ModifiedDate")) ? null : r.GetDateTime(r.GetOrdinal("ModifiedDate")),
+        CreatedByName: r.IsDBNull(r.GetOrdinal("CreatedByName")) ? null : r.GetString(r.GetOrdinal("CreatedByName")));
 
     private static SalesOrderDocumentVersionResult MapVersion(SqlDataReader r) => new(
         SalesOrderDocumentVersionId: Convert.ToInt32(r.GetValue(r.GetOrdinal("SalesOrderDocumentVersionId"))),
@@ -184,5 +185,6 @@ internal sealed class SalesOrderDocumentRepository : ISalesOrderDocumentReposito
         MimeType: r.GetString(r.GetOrdinal("MimeType")),
         SizeBytes: Convert.ToInt64(r.GetValue(r.GetOrdinal("SizeBytes"))),
         CreatedBy: r.GetString(r.GetOrdinal("CreatedBy")),
-        CreatedDate: r.GetDateTime(r.GetOrdinal("CreatedDate")));
+        CreatedDate: r.GetDateTime(r.GetOrdinal("CreatedDate")),
+        CreatedByName: r.IsDBNull(r.GetOrdinal("CreatedByName")) ? null : r.GetString(r.GetOrdinal("CreatedByName")));
 }
