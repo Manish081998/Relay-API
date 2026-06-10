@@ -3,6 +3,11 @@ using Relay.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load additional configuration files
+builder.Configuration.AddJsonFile(
+    Path.Combine(AppContext.BaseDirectory, "Templates", "workflow-comments.json"),
+    optional: false, reloadOnChange: true);
+
 // Configure logging
 builder.Host.AddLogging();
 

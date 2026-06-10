@@ -33,16 +33,19 @@ internal static class EdgeOrderQueries
         ORDER BY q.QueueName";
 
     public const string GetByOrderSeq = @"
-        SELECT orderGUID, orderSeq, brand, repPO, AccountNumber, orderDate,
-               repCustomer, repSalesPerson, jobNumber, repUserName, status,
-               totalNet, OrderRecdDate, SalesOrderNumber, Priority, RepName,
-               QueueName, ProductType, Region, JobName, CreatedDate,
-               CompletionDate, PackageOwner
-        FROM dbo.EdgeOrders
-        WHERE orderSeq = @OrderSeq";
+        SELECT EO.orderGUID, EO.orderSeq, EO.brand, EO.repPO, EO.AccountNumber,
+               EO.orderDate, EO.repCustomer, EO.repSalesPerson, EO.jobNumber,
+               EO.repUserName, EO.status, EO.totalNet, EO.OrderRecdDate,
+               EOD.SalesOrderNumber, EOD.Priority, EOD.RepName,
+               EOD.QueueName, EOD.ProductType, EOD.Region, EOD.JobName,
+               EOD.CreatedDate, EOD.CompletionDate,
+               EO.repUserName AS PackageOwner
+        FROM dbo.EdgeOrders EO
+        LEFT JOIN dbo.EdgeOrderDetails EOD ON EO.orderSeq = EOD.orderSeq AND EOD.IsActive = 1
+        WHERE EO.orderSeq = @OrderSeq";
 
     public const string GetRouteToDepartmentQueues = @"
-        SELECT q.QueueName
+        SELECT q.QueueId, q.QueueName
         FROM dbo.QueueMaster q
         INNER JOIN dbo.BrandQueueMapping bqm ON bqm.QueueId = q.QueueId
         INNER JOIN dbo.BrandMaster b ON b.BrandId = bqm.BrandId

@@ -16,18 +16,20 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        SalesOrderNoteId,
-        OrderSeq,
-        NotesDescription,
-        IsActive,
-        CreatedBy,
-        CreatedDate,
-        ModifiedBy,
-        ModifiedDate
-    FROM dbo.SalesOrderNoteDetails
-    WHERE OrderSeq = @OrderSeq
-      AND IsActive = 1
-    ORDER BY CreatedDate DESC;
+        n.SalesOrderNoteId,
+        n.OrderSeq,
+        n.NotesDescription,
+        n.IsActive,
+        n.CreatedBy,
+        n.CreatedDate,
+        n.ModifiedBy,
+        n.ModifiedDate,
+        ISNULL(NULLIF(LTRIM(RTRIM(ISNULL(u.FirstName, '') + ' ' + ISNULL(u.LastName, ''))), ''), n.CreatedBy) AS CreatedByName
+    FROM dbo.SalesOrderNoteDetails n
+    LEFT JOIN dbo.UserMaster u ON u.GlobalID = n.CreatedBy
+    WHERE n.OrderSeq = @OrderSeq
+      AND n.IsActive = 1
+    ORDER BY n.CreatedDate DESC;
 END;
 GO
 

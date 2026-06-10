@@ -118,10 +118,10 @@ public sealed class SearchOrderController : ControllerBase
     }
 
     [HttpGet(ApiRoutes.Documentum.Orders.RouteToDepartment)]
-    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<RouteToDepartmentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRouteToDepartment([FromQuery] string brandName, CancellationToken cancellationToken = default)
     {
-        var result = await _queries.SendAsync<GetRouteToDepartmentQuery, IReadOnlyList<string>>(
+        var result = await _queries.SendAsync<GetRouteToDepartmentQuery, IReadOnlyList<RouteToDepartmentDto>>(
             new GetRouteToDepartmentQuery(brandName), cancellationToken);
 
         return result.IsSuccess

@@ -19,6 +19,7 @@ public static class DocumentumInfrastructureModule
         services.AddScoped<IBrandMappingQueries, BrandRepository>();
         services.AddScoped<ISalesOrderDocumentRepository, SalesOrderDocumentRepository>();
         services.AddScoped<ISalesOrderNoteRepository, SalesOrderNoteRepository>();
+        services.AddScoped<IWorkflowRepository, WorkflowRepository>();
         return services;
     }
 }

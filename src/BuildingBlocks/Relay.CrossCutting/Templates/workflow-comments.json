@@ -1,0 +1,7 @@
+{
+  "WorkflowCommentTemplates": {
+    "Acquire": "{UserName} acquired this task from {SourceQueueName}",
+    "Unassign": "{UserName} unassigned task back to {CurrentQueueName}",
+    "Complete": "{UserName} routed task to {DestinationQueueName}"
+  }
+}

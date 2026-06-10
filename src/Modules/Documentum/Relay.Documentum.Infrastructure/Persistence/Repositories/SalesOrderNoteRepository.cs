@@ -71,7 +71,9 @@ internal sealed class SalesOrderNoteRepository : ISalesOrderNoteRepository
                 ModifiedBy:       reader.IsDBNull(reader.GetOrdinal("ModifiedBy"))
                                       ? null : reader.GetString(reader.GetOrdinal("ModifiedBy")),
                 ModifiedDate:     reader.IsDBNull(reader.GetOrdinal("ModifiedDate"))
-                                      ? null : reader.GetDateTime(reader.GetOrdinal("ModifiedDate"))
+                                      ? null : reader.GetDateTime(reader.GetOrdinal("ModifiedDate")),
+                CreatedByName:    reader.IsDBNull(reader.GetOrdinal("CreatedByName"))
+                                      ? null : reader.GetString(reader.GetOrdinal("CreatedByName"))
             ));
         }
 

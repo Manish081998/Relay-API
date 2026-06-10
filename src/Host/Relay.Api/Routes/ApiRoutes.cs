@@ -40,6 +40,16 @@ public static class ApiRoutes
             public const string Add = Base;
         }
 
+        public static class Workflow
+        {
+            private const string Base = "api/documentum/workflow";
+            public const string GetState   = $"{Base}/{{orderSeq:int}}/state";
+            public const string GetHistory = $"{Base}/{{orderSeq:int}}/history";
+            public const string Acquire    = $"{Base}/{{orderSeq:int}}/acquire";
+            public const string Unassign   = $"{Base}/{{orderSeq:int}}/unassign";
+            public const string Complete   = $"{Base}/{{orderSeq:int}}/complete";
+        }
+
         public static class Orders
         {
             public const string Search = "api/documentum/orders/search";

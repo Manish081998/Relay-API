@@ -22,7 +22,7 @@ public sealed class GetDocumentVersionsQueryHandler
         var dtos = items.Select(v => new SalesOrderDocumentVersionDto(
             v.SalesOrderDocumentVersionId, v.DocumentId, v.VersionNumber,
             v.Comment, v.DocumentPath, v.ContentType, v.MimeType,
-            v.SizeBytes, v.CreatedBy, v.CreatedDate)).ToList();
+            v.SizeBytes, v.CreatedBy, v.CreatedDate, v.CreatedByName)).ToList();
 
         return Result.Success<IReadOnlyList<SalesOrderDocumentVersionDto>>(dtos);
     }
