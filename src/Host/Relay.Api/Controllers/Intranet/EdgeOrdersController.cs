@@ -7,6 +7,7 @@ using Relay.Intranet.Application.Commands.SubmitOrder;
 using Relay.Intranet.Application.Commands.UpdatePlantCode;
 using Relay.Intranet.Application.Commands.UpdateOrderSection;
 using Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
+using Relay.Intranet.Application.Queries.GetEdiStatus;
 using Relay.Intranet.Application.Queries.SearchEdgeOrders;
 using Relay.Intranet.Contracts.Dtos;
 using Relay.SharedKernel.Application;
@@ -52,14 +53,11 @@ public sealed class EdgeOrdersController : ControllerBase
     public async Task<IActionResult> GetByOrderGuid(
         [FromQuery] GetEdgeOrderByGuidRequest request, CancellationToken cancellationToken = default)
     {
-        if (request.OrderGuid is null)
-            return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("OrderGuid is required."));
-
         if (string.IsNullOrWhiteSpace(request.RepPo))
             return BadRequest(ApiResponse<EdgeOrderDetailDto>.Fail("RepPo is required."));
 
         var result = await _queries.SendAsync<GetEdgeOrderByGuidQuery, EdgeOrderDetailDto?>(
-            new GetEdgeOrderByGuidQuery(request.UserId, request.OrderGuid.Value.ToString(), request.RepPo),
+            new GetEdgeOrderByGuidQuery(request.UserId, request.OrderGuid?.ToString(), request.RepPo),
             cancellationToken);
 
         if (!result.IsSuccess)
@@ -134,6 +132,25 @@ public sealed class EdgeOrdersController : ControllerBase
         return result.IsSuccess
             ? Ok(ApiResponse<bool>.Ok(result.Value))
             : BadRequest(ApiResponse<bool>.Fail(result.Error.Description));
+    }
+
+    [HttpGet(ApiRoutes.Intranet.GetEdiStatus)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<EdiStatusDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<EdiStatusDto>>), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<EdiStatusDto>>>> GetEDIStatus(
+        [FromQuery] string repPo,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(repPo))
+            return BadRequest(ApiResponse<IReadOnlyList<EdiStatusDto>>.Fail("RepPo is required."));
+
+        var result = await _queries.SendAsync<GetEdiStatusQuery, IReadOnlyList<EdiStatusDto>>(
+            new GetEdiStatusQuery(repPo),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(ApiResponse<IReadOnlyList<EdiStatusDto>>.Ok(result.Value))
+            : BadRequest(ApiResponse<IReadOnlyList<EdiStatusDto>>.Fail(result.Error.Description));
     }
 
     [HttpPut(ApiRoutes.Intranet.UpdatePlantCode)]

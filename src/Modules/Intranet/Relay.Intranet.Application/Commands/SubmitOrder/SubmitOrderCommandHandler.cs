@@ -55,7 +55,8 @@ public sealed class SubmitOrderCommandHandler : ICommandHandler<SubmitOrderComma
         // Clean up staging file after successful upload
         await _stagingWriter.DeleteFile(FileName, cancellationToken);
 
-        await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.Po, "jparaste", xml,"Submit", xml, cancellationToken);
+        // Dont need to save whole xml again into database. 
+        //await _edgeOrders.TrackOrderChangesAsync(command.OrderGuid, command.Po, "jparaste", xml,"Submit", xml, command.Brand, cancellationToken);
         return Result.Success(true);
     }
 

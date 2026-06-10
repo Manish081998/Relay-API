@@ -5,5 +5,5 @@ namespace Relay.Intranet.Application.Queries.GetEdgeOrderByGuid;
 
 public sealed record GetEdgeOrderByGuidQuery(
     string UserId,
-    string OrderGuid,
+    string? OrderGuid,
     string RepPo) : IQuery<EdgeOrderDetailDto?>;

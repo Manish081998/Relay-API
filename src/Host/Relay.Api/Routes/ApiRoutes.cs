@@ -82,6 +82,7 @@ public static class ApiRoutes
         public const string UpdateSection    = "api/intranet/edge-orders/UpdateSection";
         public const string SubmitOrder      = "api/intranet/edge-orders/{orderGuid}/submit";
         public const string UpdatePlantCode  = "api/intranet/edge-orders/UpdatePlantCode";
+        public const string GetEdiStatus     = "api/intranet/edge-orders/GetEDIStatus";
     }
     public static class Authenticatication
     {
