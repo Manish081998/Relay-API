@@ -39,9 +39,13 @@ internal static class EdgeOrderQueries
                EOD.SalesOrderNumber, EOD.Priority, EOD.RepName,
                EOD.QueueName, EOD.ProductType, EOD.Region, EOD.JobName,
                EOD.CreatedDate, EOD.CompletionDate,
-               EO.repUserName AS PackageOwner
+               EO.repUserName AS PackageOwner,
+               ISNULL(EOS.IsAcquired, 0) AS IsAcquired,
+               EOS.AcquiredBy,
+               EOS.CurrentQueueID
         FROM dbo.EdgeOrders EO
         LEFT JOIN dbo.EdgeOrderDetails EOD ON EO.orderSeq = EOD.orderSeq AND EOD.IsActive = 1
+        LEFT JOIN dbo.EdgeOrderState EOS ON EO.orderSeq = EOS.OrderSeq
         WHERE EO.orderSeq = @OrderSeq";
 
     public const string GetRouteToDepartmentQueues = @"

@@ -28,5 +28,8 @@ internal static class EdgeOrderMappers
      JobName: order.JobName,
      CreatedDate: order.CreatedDate,
      CompletionDate: order.CompletionDate,
-     PackageOwner: order.PackageOwner);
+     PackageOwner: order.PackageOwner,
+     IsAcquired: order.IsAcquired,
+     AcquiredBy: order.AcquiredBy,
+     CurrentQueueId: order.CurrentQueueId);
 }

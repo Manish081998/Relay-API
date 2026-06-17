@@ -127,6 +127,9 @@ BEGIN
         ,EOD.JobName
         ,EOD.CompletionDate
         ,EOD.PackageOwner AS [PackageOwner]
+        ,ISNULL(EOS.IsAcquired, 0) AS IsAcquired
+        ,EOS.AcquiredBy
+        ,EOS.CurrentQueueID
     FROM dbo.EdgeOrders EO WITH (NOLOCK)
     LEFT JOIN EdgeOrderDetails EOD WITH (NOLOCK)
         ON EO.orderSeq = EOD.orderSeq AND EOD.IsActive = 1

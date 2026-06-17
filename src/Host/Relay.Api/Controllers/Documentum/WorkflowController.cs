@@ -102,6 +102,68 @@ public sealed class WorkflowController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
+    // ─── Bulk Acquire ────────────────────────────────────────────────────────
+
+    [HttpPost(ApiRoutes.Documentum.Workflow.BulkAcquire)]
+    [ProducesResponseType(typeof(BulkAcquireResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BulkAcquire(
+        [FromBody] BulkAcquireRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request.OrderSeqs is null || request.OrderSeqs.Length == 0)
+            return BadRequest("At least one order sequence is required.");
+
+        var globalId    = User.Identity?.Name ?? WorkflowConstants.FallbackUser;
+        var displayName = !string.IsNullOrWhiteSpace(request.DisplayName) ? request.DisplayName : globalId;
+
+        var items = new List<BulkAcquireItemResultDto>();
+
+        foreach (var orderSeq in request.OrderSeqs)
+        {
+            var stateResult = await _queries.SendAsync<GetWorkflowStateQuery, WorkflowStateDto?>(
+                new GetWorkflowStateQuery(orderSeq), cancellationToken);
+
+            if (!stateResult.IsSuccess || stateResult.Value is null)
+            {
+                items.Add(new(orderSeq, "no_queue", "Order is not assigned to any queue."));
+                continue;
+            }
+
+            var state = stateResult.Value;
+
+            if (state.IsAcquired)
+            {
+                var acquiredByName = state.AcquiredByName ?? state.AcquiredBy ?? "another user";
+                items.Add(new(orderSeq, "already_acquired", $"Already acquired by {acquiredByName}."));
+                continue;
+            }
+
+            var comment = _commentTemplates.Acquire
+                .Replace("{UserName}", displayName)
+                .Replace("{SourceQueueName}", state.QueueName);
+
+            var command = new ProcessWorkflowActionCommand(
+                orderSeq, WorkflowActionFlag.Acquire, globalId, null, comment);
+
+            var result = await _commands.SendAsync(command, cancellationToken);
+
+            items.Add(result.IsSuccess
+                ? new(orderSeq, "acquired", "Task acquired successfully.")
+                : new(orderSeq, "error", result.Error.Description));
+        }
+
+        var dto = new BulkAcquireResultDto(
+            TotalRequested: request.OrderSeqs.Length,
+            AcquiredCount: items.Count(i => i.Status == "acquired"),
+            AlreadyAcquiredCount: items.Count(i => i.Status == "already_acquired"),
+            NoQueueCount: items.Count(i => i.Status == "no_queue"),
+            ErrorCount: items.Count(i => i.Status == "error"),
+            Items: items);
+
+        return Ok(dto);
+    }
+
     // ─── Unassign ──────────────────────────────────────────────────────────
 
     [HttpPost(ApiRoutes.Documentum.Workflow.Unassign)]

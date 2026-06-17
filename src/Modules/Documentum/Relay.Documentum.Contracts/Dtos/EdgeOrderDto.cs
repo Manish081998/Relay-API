@@ -23,4 +23,7 @@ public sealed record EdgeOrderDto(
     string? JobName,
     DateTime? CreatedDate,
     DateTime? CompletionDate,
-    string? PackageOwner);
+    string? PackageOwner,
+    bool IsAcquired,
+    string? AcquiredBy,
+    int? CurrentQueueId);
