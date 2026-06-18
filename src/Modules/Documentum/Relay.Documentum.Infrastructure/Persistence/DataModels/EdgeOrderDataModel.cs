@@ -28,6 +28,9 @@ internal sealed class EdgeOrderDataModel
     public DateTime? CreatedDate { get; init; }
     public DateTime? CompletionDate { get; init; }
     public string? PackageOwner { get; init; }
+    public bool IsAcquired { get; init; }
+    public string? AcquiredBy { get; init; }
+    public int? CurrentQueueId { get; init; }
 
     public static EdgeOrderDataModel FromRecord(IDataRecord record) => new()
     {
@@ -54,6 +57,9 @@ internal sealed class EdgeOrderDataModel
         CreatedDate      = record.IsDBNull(record.GetOrdinal("CreatedDate"))        ? null : record.GetDateTime(record.GetOrdinal("CreatedDate")),
         CompletionDate   = record.IsDBNull(record.GetOrdinal("CompletionDate"))     ? null : record.GetDateTime(record.GetOrdinal("CompletionDate")),
         PackageOwner     = record.IsDBNull(record.GetOrdinal("PackageOwner"))       ? null : record.GetString(record.GetOrdinal("PackageOwner")),
+        IsAcquired       = !record.IsDBNull(record.GetOrdinal("IsAcquired")) && record.GetBoolean(record.GetOrdinal("IsAcquired")),
+        AcquiredBy       = record.IsDBNull(record.GetOrdinal("AcquiredBy"))        ? null : record.GetString(record.GetOrdinal("AcquiredBy")),
+        CurrentQueueId   = record.IsDBNull(record.GetOrdinal("CurrentQueueID"))    ? (int?)null : record.GetInt32(record.GetOrdinal("CurrentQueueID")),
     };
 
     public EdgeOrder ToDomain() => new(
@@ -79,5 +85,8 @@ internal sealed class EdgeOrderDataModel
         JobName: JobName,
         CreatedDate: CreatedDate,
         CompletionDate: CompletionDate,
-        PackageOwner: PackageOwner);
+        PackageOwner: PackageOwner,
+        IsAcquired: IsAcquired,
+        AcquiredBy: AcquiredBy,
+        CurrentQueueId: CurrentQueueId);
 }

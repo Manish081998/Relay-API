@@ -14,4 +14,7 @@ public sealed class AuthenticatedUserDto
     public string UserType { get; init; } = string.Empty;
     
     public byte[]? ProfileImage { get; init; }
+    public int? BrandId { get; init; }
+    public string? BrandName { get; init; }
+    public string[] AssociatedQueueNames { get; init; } = [];
 }

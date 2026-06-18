@@ -24,66 +24,7 @@ namespace Relay.Api.Controllers
             _authRepo = authRepo;
         }
 
-        //[HttpGet(ApiRoutes.Users.GetAll)]
-        //[ProducesResponseType(typeof(List<UserDto>), StatusCodes.Status200OK)]
-        //public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
-        //{
-        //    var result = await _queries.SendAsync<GetAllUsersQuery, IReadOnlyList<UserDto>>(
-        //        new GetAllUsersQuery(), cancellationToken);
-
-        //    return Ok(result.Value);
-        //}
-
-        //[HttpPost(ApiRoutes.Users.Add)]
-        //[ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<IActionResult> Add([FromBody] AddUserRequest request, CancellationToken cancellationToken = default)
-        //{
-        //    var result = await _commands.SendAsync(
-        //        new AddUserCommand(
-        //            request.GlobalId,
-        //            request.FirstName,
-        //            request.LastName,
-        //            request.EmailId,
-        //            request.BrandId,
-        //            request.IsActive,
-        //            request.CreatedBy,
-        //            request.ModifiedBy),
-        //        cancellationToken);
-
-        //    return result.IsSuccess
-        //        ? StatusCode(StatusCodes.Status201Created, result.Value)
-        //        : BadRequest(result.Error.Description);
-        //}
-
-        //[HttpPut(ApiRoutes.Users.Update)]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<IActionResult> Update([FromBody] UpdateUserRequest request, CancellationToken cancellationToken = default)
-        //{
-        //    var result = await _commands.SendAsync(
-        //        new UpdateUserCommand(
-        //            request.userId,
-        //            request.BrandId,
-        //            request.IsActive,
-        //            request.ModifiedBy),
-        //        cancellationToken);
-
-        //    if (!result.IsSuccess)
-        //    {
-        //        return result.Error.Code == "User.NotFound"
-        //            ? NotFound(result.Error.Description)
-        //            : BadRequest(result.Error.Description);
-        //    }
-
-        //    return Ok(result.Value);
-        //}
-
-
-
-
-
+        
         [HttpGet(ApiRoutes.Users.GetByGlobalId)]
         public async Task<IActionResult> GetUserByGlobalId([FromRoute] string globalId, CancellationToken ct = default)
         {

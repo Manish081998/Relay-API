@@ -55,6 +55,8 @@ internal sealed class UserLoginService : IUserLoginService
 
         bool isAdmin = string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase);
 
+        var brandInfo = await _authRepo.GetUserBrandInfoAsync(globalId, ct);
+
         return (new AuthenticatedUserDto
         {
             GlobalId = adUser.GlobalId,
@@ -65,7 +67,10 @@ internal sealed class UserLoginService : IUserLoginService
             CompanyName = adUser.CompanyName,
             Department = adUser.Department,
             Office = adUser.Office,
-            UserType = userType
+            UserType = userType,
+            BrandId = brandInfo?.BrandId,
+            BrandName = brandInfo?.BrandName,
+            AssociatedQueueNames = brandInfo?.AssociatedQueueNames ?? []
         }, null);
     }
 }

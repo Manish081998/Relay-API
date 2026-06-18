@@ -12,6 +12,16 @@ internal static class UserAuthQueries
     public const string GetAuthStatus = "USP_UserAuthorizedStatus";
     public const string AddModifyUser = "USP_AddModifyUser";
 
+    public const string GetUserBrandInfo = @"
+        SELECT UM.BrandID,
+               BM.BrandName,
+               STRING_AGG(QM.QueueName, ',') AS AssociatedQueueNames
+        FROM dbo.UserMaster UM
+        INNER JOIN dbo.BrandMaster BM ON UM.BrandID = BM.BrandId
+        LEFT JOIN dbo.QueueUserMapping QUM ON UM.UserId = QUM.UserId
+        LEFT JOIN dbo.QueueMaster QM ON QUM.QueueID = QM.QueueId
+        WHERE UM.GlobalID = @GlobalID
+        GROUP BY UM.BrandID, BM.BrandName";
 }
 
 internal sealed class UserAuthRepository : IUserAuthRepository
@@ -58,5 +68,23 @@ internal sealed class UserAuthRepository : IUserAuthRepository
             CommandType.StoredProcedure,
             ct);
 
+    public Task<UserBrandInfo?> GetUserBrandInfoAsync(string globalId, CancellationToken ct = default) =>
+        _db.QuerySingleOrDefaultAsync(
+            Module,
+            UserAuthQueries.GetUserBrandInfo,
+            r =>
+            {
+                var queueNames = r.IsDBNull(r.GetOrdinal("AssociatedQueueNames"))
+                    ? Array.Empty<string>()
+                    : r.GetString(r.GetOrdinal("AssociatedQueueNames"))
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
+                return new UserBrandInfo(
+                    BrandId: r.GetInt32(r.GetOrdinal("BrandID")),
+                    BrandName: r.GetString(r.GetOrdinal("BrandName")),
+                    AssociatedQueueNames: queueNames
+                );
+            },
+            new { GlobalID = globalId },
+            cancellationToken: ct);
 }

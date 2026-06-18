@@ -47,7 +47,8 @@ public static class ApiRoutes
             public const string GetHistory = $"{Base}/{{orderSeq:int}}/history";
             public const string Acquire    = $"{Base}/{{orderSeq:int}}/acquire";
             public const string Unassign   = $"{Base}/{{orderSeq:int}}/unassign";
-            public const string Complete   = $"{Base}/{{orderSeq:int}}/complete";
+            public const string Complete      = $"{Base}/{{orderSeq:int}}/complete";
+            public const string BulkAcquire  = $"{Base}/bulk-acquire";
         }
 
         public static class Orders
