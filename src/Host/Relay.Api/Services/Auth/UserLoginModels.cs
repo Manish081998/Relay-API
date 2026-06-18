@@ -18,6 +18,8 @@ public sealed class AdUserDetails
 
 public sealed record UserAuthStatus(string Status, string Message, string UserType);
 
+public sealed record UserBrandInfo(int BrandId, string BrandName, string[] AssociatedQueueNames);
+
 public sealed record UserRecord(
     int UserId,
     string GlobalId,
