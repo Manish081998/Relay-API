@@ -70,6 +70,8 @@ public sealed class EdgeOrdersController : ControllerBase
     }
 
     [HttpPut(ApiRoutes.Intranet.UpdateSection)]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ApiResponse<bool>>> UpdateSection(
         string orderGuid,
         string sectionName,
