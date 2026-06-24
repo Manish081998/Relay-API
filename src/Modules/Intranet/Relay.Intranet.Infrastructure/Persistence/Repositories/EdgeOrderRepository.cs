@@ -174,7 +174,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
     public IReadOnlyList<(string Code, string Description)> GetPlantCodes()
     {
-        var path = Path.Combine(_env.ContentRootPath, "App_Data", "PlantCode.xml");
+        var path = Path.Combine(_env.ContentRootPath, "Assets", "PlantCode.xml");
         if (!File.Exists(path)) return [];
 
         var doc = XDocument.Load(path);
@@ -187,7 +187,7 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
     public IReadOnlyList<(string Code, string Description)> GetShipTerms()
     {
-        var path = Path.Combine(_env.ContentRootPath, "App_Data", "Shipterms.xml");
+        var path = Path.Combine(_env.ContentRootPath, "Assets", "Shipterms.xml");
         if (!File.Exists(path)) return [];
 
         var doc = XDocument.Load(path);
