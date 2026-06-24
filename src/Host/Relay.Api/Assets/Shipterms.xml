@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="yes"?>
+<ShipTerms>
+  <item>
+	<code>CA</code>
+	<description>C.O.D Cash on Delivery</description>
+  </item>
+	 <item>
+    <code>CO</code>
+	<description>Collect</description>
+  </item>
+ <item>
+    <code>FF</code>
+	<description>Full Freight Allowed</description>
+  </item>
+  <item>
+    <code>NC</code>
+	<description>No Charge</description>
+   </item>
+   <item>
+      <code>PA</code>
+	<description>Prepaid and Add</description>
+   </item>
+<item>
+    <code>PP</code>
+	<description>Prepaid</description>
+ </item>
+<item>
+    <code>TP</code>
+	<description>Third Party Bill</description>
+ </item>
+<item>
+	<code></code>
+	<description></description>
+  </item>
+</ShipTerms>
