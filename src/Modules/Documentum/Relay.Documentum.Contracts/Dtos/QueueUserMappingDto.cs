@@ -6,7 +6,7 @@ public sealed record QueueUserMappingDto(
     string? EmailId,
     int? BrandId,
     string? BrandName,
-    int? QueueId,
+    string? QueueId,
     string? QueueName,
     string? ActionByFullName,
     int? RoleMasterId,

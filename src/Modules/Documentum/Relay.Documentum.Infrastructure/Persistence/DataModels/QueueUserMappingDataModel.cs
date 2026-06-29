@@ -10,7 +10,7 @@ internal sealed class QueueUserMappingDataModel
     public string? EmailId { get; init; }
     public int? BrandId { get; init; }
     public string? BrandName { get; init; }
-    public int? QueueId { get; init; }
+    public string? QueueId { get; init; }
     public string? QueueName { get; init; }
     public string? ActionByFullName { get; init; }
     public int? RoleMasterId { get; init; }
@@ -32,16 +32,16 @@ internal sealed class QueueUserMappingDataModel
 
         return new()
         {
-            FullName         = NullableString(record, "FullName"),
-            GlobalId         = NullableString(record, "GlobalID"),
-            EmailId          = NullableString(record, "EmailID"),
-            BrandId          = NullableInt(record, "BrandId"),
-            BrandName        = NullableString(record, "BrandName"),
-            QueueId          = NullableInt(record, "QueueId"),
-            QueueName        = NullableString(record, "QueueName"),
+            FullName = NullableString(record, "FullName"),
+            GlobalId = NullableString(record, "GlobalID"),
+            EmailId = NullableString(record, "EmailID"),
+            BrandId = NullableInt(record, "BrandId"),
+            BrandName = NullableString(record, "BrandName"),
+            QueueId = NullableString(record, "QueueId"),
+            QueueName = NullableString(record, "QueueName"),
             ActionByFullName = NullableString(record, "ActionByFullName"),
-            RoleMasterId     = NullableInt(record, "RoleMasterId"),
-            RoleName         = NullableString(record, "RoleName"),
+            RoleMasterId = NullableInt(record, "RoleMasterId"),
+            RoleName = NullableString(record, "RoleName"),
         };
     }
 
