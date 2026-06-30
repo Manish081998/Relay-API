@@ -28,6 +28,7 @@ public static class FrameworkExtensions
         // File storage (configurable path + impersonation)
         services.Configure<FileStorageSettings>(configuration.GetSection("FileStorage"));
         services.AddSingleton<IFileStorageService, FileStorageService>();
+        services.AddSingleton<IDocumentPathBuilder, DocumentPathBuilder>();
         services.AddScoped<IStagingFileWriter, StagingFileWriter>();
 
         services.AddCors(options =>
