@@ -73,6 +73,7 @@ public static class ApiRoutes
         public const string CreateUser = "api/users/CreateUser";
         public const string UpdateUser = "api/users/UpdateUser";
         public const string GetByGlobalId = "api/users/{globalId}";
+        public const string DeleteUser = "api/users/DeleteUser/{globalId}";
         //public const string Add = "api/users";
         //public const string Update = "api/users";
     }   
