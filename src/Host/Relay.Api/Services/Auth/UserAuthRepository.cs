@@ -1,4 +1,5 @@
 using System.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Relay.Infrastructure.Core.Data;
 
 namespace Relay.Api.Services.Auth;
@@ -11,6 +12,7 @@ internal static class UserAuthQueries
 {
     public const string GetAuthStatus = "USP_UserAuthorizedStatus";
     public const string AddModifyUser = "USP_AddModifyUser";
+    public const string DeleteUser    = "STP_DeleteUser";
 
     public const string GetUserBrandInfo = @"
         SELECT UM.BrandID,
@@ -67,6 +69,17 @@ internal sealed class UserAuthRepository : IUserAuthRepository
             },
             CommandType.StoredProcedure,
             ct);
+
+    public async Task<bool> DeleteUserAsync(string globalId,string createdBy, CancellationToken ct = default)
+    {
+        var affected = await _db.ExecuteAsync(
+            Module,
+            UserAuthQueries.DeleteUser,
+            new { GlobalID = globalId , CreatedBy  = createdBy },
+            CommandType.StoredProcedure,
+            ct);
+        return affected > 0;
+    }
 
     public Task<UserBrandInfo?> GetUserBrandInfoAsync(string globalId, CancellationToken ct = default) =>
         _db.QuerySingleOrDefaultAsync(
