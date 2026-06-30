@@ -38,8 +38,8 @@ internal static class EdgeOrderQueries
                EO.repUserName, EO.status, EO.totalNet, EO.OrderRecdDate,
                EOD.SalesOrderNumber, EOD.Priority, EOD.RepName,
                EOD.QueueName, EOD.ProductType, EOD.Region, EOD.JobName,
-               EOD.CreatedDate, EOD.CompletionDate,
-               EO.repUserName AS PackageOwner,
+               EO.orderDate AS CreatedDate, EOD.CompletionDate,
+               EOD.PackageOwner,
                ISNULL(EOS.IsAcquired, 0) AS IsAcquired,
                EOS.AcquiredBy,
                EOS.CurrentQueueID
