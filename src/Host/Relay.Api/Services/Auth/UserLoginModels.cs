@@ -11,7 +11,7 @@ public sealed class AdUserDetails
     public string? Office { get; init; }
     public string? Title { get; init; }
     public int? BrandId { get; init; }
-    public int? QueueId { get; init; }
+    public string? QueueId { get; init; }   // comma-separated queue IDs e.g. "5,11"
     public int? RoleId { get; init; }
     public string? CreatedBy { get; init; }
 }

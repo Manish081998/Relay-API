@@ -70,6 +70,17 @@ namespace Relay.Api.Controllers
             return result is null ? BadRequest("Failed to update user.") : Ok(result);
         }
 
+        [HttpDelete(ApiRoutes.Users.DeleteUser)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteUser(
+            [FromRoute] string globalId,
+            [FromQuery] string createdBy,
+            CancellationToken ct = default)
+        {
+            var deleted = await _authRepo.DeleteUserAsync(globalId, createdBy, ct);
+            return deleted ? Ok() : NotFound();
+        }
 
     }
 }
