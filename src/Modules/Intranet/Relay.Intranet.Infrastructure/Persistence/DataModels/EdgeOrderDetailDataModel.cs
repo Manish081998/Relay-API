@@ -109,7 +109,7 @@ internal sealed class EdgeOrderDetailDataModel
             City:     GetValue(soldToEl, "City"),
             State:    GetValue(soldToEl, "State"),
             Zip:      GetValue(soldToEl, "Zip"),
-            Country:  GetValue(soldToEl, "Country")),
+            Country:  GetValue(soldToEl, "country")),
         ShipTo: new EdgeOrderDetailShipTo(
             Name:     GetValue(shipToEl, "Name1"),
             Address1: GetValue(shipToEl, "Street1"),
