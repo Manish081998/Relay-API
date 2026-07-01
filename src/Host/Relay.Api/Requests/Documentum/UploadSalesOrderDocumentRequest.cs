@@ -6,5 +6,6 @@ public sealed record UploadSalesOrderDocumentRequest(
     int OrderSeq,
     string? RepPO,
     string? BrandName,
+    string? OrderDate,
     bool IsSupportedDocument,
     IFormFile File);

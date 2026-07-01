@@ -19,18 +19,24 @@ public sealed class SalesOrderDocumentController : ControllerBase
     private readonly IQueryDispatcher _queries;
     private readonly ICommandDispatcher _commands;
     private readonly IFileStorageService _storage;
+    private readonly IDocumentPathBuilder _pathBuilder;
+    private readonly ILogger<SalesOrderDocumentController> _logger;
+
+    private string CurrentUserName => User.Identity?.Name ?? "system";
 
     public SalesOrderDocumentController(
         IQueryDispatcher queries,
         ICommandDispatcher commands,
-        IFileStorageService storage)
+        IFileStorageService storage,
+        IDocumentPathBuilder pathBuilder,
+        ILogger<SalesOrderDocumentController> logger)
     {
-        _queries  = queries  ?? throw new ArgumentNullException(nameof(queries));
-        _commands = commands ?? throw new ArgumentNullException(nameof(commands));
-        _storage  = storage  ?? throw new ArgumentNullException(nameof(storage));
+        _queries     = queries     ?? throw new ArgumentNullException(nameof(queries));
+        _commands    = commands    ?? throw new ArgumentNullException(nameof(commands));
+        _storage     = storage     ?? throw new ArgumentNullException(nameof(storage));
+        _pathBuilder = pathBuilder ?? throw new ArgumentNullException(nameof(pathBuilder));
+        _logger      = logger     ?? throw new ArgumentNullException(nameof(logger));
     }
-
-    // ─── Upload new document ────────────────────────────────────────────────
 
     [HttpPost(ApiRoutes.Documentum.SalesOrderDocuments.Upload)]
     [ProducesResponseType(typeof(UploadDocumentResultDto), StatusCodes.Status200OK)]
@@ -42,46 +48,42 @@ public sealed class SalesOrderDocumentController : ControllerBase
         if (request.File is null || request.File.Length == 0)
             return BadRequest("File is required.");
 
-        var originalFileName = SanitizeFileName(request.File.FileName);
+        if (request.OrderSeq <= 0)
+            return BadRequest("OrderSeq must be greater than zero.");
+
+        var originalFileName = DocumentFileHelper.SanitizeFileName(request.File.FileName);
         var mimeType         = request.File.ContentType;
-        var contentType      = GetContentTypeCategory(originalFileName);
+        var contentType      = DocumentFileHelper.GetContentTypeCategory(originalFileName);
+        var documentName     = DocumentFileHelper.BuildDocumentDisplayName(originalFileName, request.RepPO, request.IsSupportedDocument);
 
-        // ── Build display/storage name ──────────────────────────────────────
-        // Sales order doc: PO{repPO}_{originalName}_{MMddyyyy}.{ext}
-        // Support doc:     {originalName} (unchanged)
-        string documentName;
+        var orderDate = DateTime.TryParse(request.OrderDate, out var parsedDate)
+            ? parsedDate
+            : DateTime.Now;
 
-        if (!request.IsSupportedDocument && !string.IsNullOrWhiteSpace(request.RepPO))
-        {
-            var nameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
-            var ext            = Path.GetExtension(originalFileName);
-            var dateSuffix     = DateTime.Now.ToString("MMddyyyy");
-            documentName = $"PO{request.RepPO}_{nameWithoutExt}_{dateSuffix}{ext}";
-        }
-        else
-        {
-            documentName = originalFileName;
-        }
+        var brand = !string.IsNullOrWhiteSpace(request.BrandName) ? request.BrandName : "Unknown";
 
-        // ── Build physical storage path ─────────────────────────────────────
-        // {BasePath}/{orderSeq}/{documentName}/v1_{documentName}
-        var folderRelative  = Path.Combine(request.OrderSeq.ToString(), documentName);
-        var folderAbsolute  = Path.Combine(_storage.BasePath, folderRelative);
+        var folderRelative  = _pathBuilder.BuildRelativeFolder(brand, orderDate, request.OrderSeq);
+        var folderAbsolute  = _pathBuilder.BuildAbsoluteFolder(brand, orderDate, request.OrderSeq);
         var versionFileName = $"v1_{documentName}";
         var filePath        = Path.Combine(folderAbsolute, versionFileName);
 
-        await using (var stream = request.File.OpenReadStream())
+        try
         {
+            await using var stream = request.File.OpenReadStream();
             await _storage.SaveFileAsync(filePath, stream, cancellationToken);
         }
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "Failed to save uploaded file for OrderSeq {OrderSeq}", request.OrderSeq);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to save file to storage.");
+        }
 
-        // Relative path stored in DB (forward slashes for portability)
         var documentPathRelative = $"{folderRelative}/{versionFileName}".Replace('\\', '/');
 
         var command = new UploadSalesOrderDocumentCommand(
             request.OrderSeq, request.RepPO, request.BrandName, documentName,
             contentType, mimeType, request.File.Length, documentPathRelative,
-            request.IsSupportedDocument, User.Identity?.Name ?? "system");
+            request.IsSupportedDocument, CurrentUserName);
 
         var result = await _commands.SendAsync(command, cancellationToken);
 
@@ -89,8 +91,6 @@ public sealed class SalesOrderDocumentController : ControllerBase
             ? Ok(result.Value)
             : BadRequest(result.Error.Description);
     }
-
-    // ─── Create new version (edit/annotate) ─────────────────────────────────
 
     [HttpPost(ApiRoutes.Documentum.SalesOrderDocuments.CreateVersion)]
     [ProducesResponseType(typeof(UploadDocumentResultDto), StatusCodes.Status200OK)]
@@ -102,52 +102,55 @@ public sealed class SalesOrderDocumentController : ControllerBase
         if (request.File is null || request.File.Length == 0)
             return BadRequest("File is required.");
 
-        // Get existing versions to determine storage folder and next version number
+        if (request.DocumentId <= 0)
+            return BadRequest("DocumentId must be greater than zero.");
+
         var versionsResult = await _queries.SendAsync<GetDocumentVersionsQuery, IReadOnlyList<SalesOrderDocumentVersionDto>>(
             new GetDocumentVersionsQuery(request.DocumentId), cancellationToken);
 
         var latestVersion = versionsResult.IsSuccess && versionsResult.Value.Count > 0
-            ? versionsResult.Value[0]   // ordered DESC
+            ? versionsResult.Value[0]
             : null;
 
         var nextVersion = latestVersion is not null ? latestVersion.VersionNumber + 1 : 1;
 
-        // ── Determine storage folder from the latest version's path ─────────
         string folderRelative;
-
         if (latestVersion is not null)
         {
-            // e.g. "1623355/PO20212_Order Transmittal — 230121_05252026.pdf"
             folderRelative = Path.GetDirectoryName(latestVersion.DocumentPath)?.Replace('\\', '/') ?? "";
         }
         else
         {
-            var safeName = SanitizeFileName(request.File.FileName);
+            var safeName = DocumentFileHelper.SanitizeFileName(request.File.FileName);
             folderRelative = $"unknown/{safeName}";
         }
 
         var folderAbsolute = Path.Combine(_storage.BasePath,
             folderRelative.Replace('/', Path.DirectorySeparatorChar));
 
-        // ── Version file uses the document's stored name (from folder) ──────
-        // e.g. folder = "PO20212_Order Transmittal — 230121_05252026.pdf"
-        //      file   = "v2_PO20212_Order Transmittal — 230121_05252026.pdf"
-        var documentFolderName = Path.GetFileName(folderRelative);
-        var versionFileName    = $"v{nextVersion}_{documentFolderName}";
-        var filePath           = Path.Combine(folderAbsolute, versionFileName);
+        var latestFileName  = Path.GetFileName(latestVersion?.DocumentPath ?? "");
+        var documentName    = DocumentFileHelper.ExtractOriginalName(latestFileName);
+        var versionFileName = $"v{nextVersion}_{documentName}";
+        var filePath        = Path.Combine(folderAbsolute, versionFileName);
 
-        await using (var stream = request.File.OpenReadStream())
+        try
         {
+            await using var stream = request.File.OpenReadStream();
             await _storage.SaveFileAsync(filePath, stream, cancellationToken);
+        }
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "Failed to save version file for DocumentId {DocumentId}", request.DocumentId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to save file to storage.");
         }
 
         var documentPathRelative = $"{folderRelative}/{versionFileName}";
         var mimeType    = request.File.ContentType;
-        var contentType = GetContentTypeCategory(documentFolderName);
+        var contentType = DocumentFileHelper.GetContentTypeCategory(documentName);
 
         var command = new CreateDocumentVersionCommand(
             request.DocumentId, documentPathRelative, contentType, mimeType,
-            request.File.Length, User.Identity?.Name ?? "system", request.Comment);
+            request.File.Length, CurrentUserName, request.Comment);
 
         var result = await _commands.SendAsync(command, cancellationToken);
 
@@ -156,8 +159,6 @@ public sealed class SalesOrderDocumentController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    // ─── Get documents by orderSeq ──────────────────────────────────────────
-
     [HttpGet(ApiRoutes.Documentum.SalesOrderDocuments.GetByOrderSeq)]
     [ProducesResponseType(typeof(IReadOnlyList<SalesOrderDocumentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByOrderSeq(
@@ -165,6 +166,9 @@ public sealed class SalesOrderDocumentController : ControllerBase
         [FromQuery] bool? isSupportedDocument = null,
         CancellationToken cancellationToken = default)
     {
+        if (orderSeq <= 0)
+            return BadRequest("OrderSeq must be greater than zero.");
+
         var result = await _queries.SendAsync<GetDocumentsByOrderSeqQuery, IReadOnlyList<SalesOrderDocumentDto>>(
             new GetDocumentsByOrderSeqQuery(orderSeq, isSupportedDocument), cancellationToken);
 
@@ -173,14 +177,15 @@ public sealed class SalesOrderDocumentController : ControllerBase
             : BadRequest(result.Error.Description);
     }
 
-    // ─── Get document versions ──────────────────────────────────────────────
-
     [HttpGet(ApiRoutes.Documentum.SalesOrderDocuments.GetVersions)]
     [ProducesResponseType(typeof(IReadOnlyList<SalesOrderDocumentVersionDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetVersions(
         [FromRoute] int documentId,
         CancellationToken cancellationToken = default)
     {
+        if (documentId <= 0)
+            return BadRequest("DocumentId must be greater than zero.");
+
         var result = await _queries.SendAsync<GetDocumentVersionsQuery, IReadOnlyList<SalesOrderDocumentVersionDto>>(
             new GetDocumentVersionsQuery(documentId), cancellationToken);
 
@@ -188,8 +193,6 @@ public sealed class SalesOrderDocumentController : ControllerBase
             ? Ok(result.Value)
             : BadRequest(result.Error.Description);
     }
-
-    // ─── Serve file for preview ─────────────────────────────────────────────
 
     [HttpGet(ApiRoutes.Documentum.SalesOrderDocuments.Preview)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -199,7 +202,6 @@ public sealed class SalesOrderDocumentController : ControllerBase
         if (string.IsNullOrWhiteSpace(path))
             return BadRequest("Path is required.");
 
-        // Security: prevent directory traversal
         var sanitized = path.Replace("..", "").Replace('\\', '/');
         var fullPath = Path.Combine(_storage.BasePath,
             sanitized.Replace('/', Path.DirectorySeparatorChar));
@@ -207,46 +209,8 @@ public sealed class SalesOrderDocumentController : ControllerBase
         if (!_storage.FileExists(fullPath))
             return NotFound("File not found.");
 
-        var mimeType   = GetMimeType(fullPath);
+        var mimeType   = DocumentFileHelper.GetMimeType(fullPath);
         var fileStream = _storage.OpenRead(fullPath);
         return File(fileStream, mimeType);
     }
-
-    // ─── Helpers ────────────────────────────────────────────────────────────
-
-    private static string SanitizeFileName(string fileName)
-    {
-        var invalid = Path.GetInvalidFileNameChars();
-        var sanitized = new string(fileName.Where(c => !invalid.Contains(c)).ToArray());
-        return string.IsNullOrWhiteSpace(sanitized) ? "document" : sanitized;
-    }
-
-    private static string GetContentTypeCategory(string fileName) =>
-        Path.GetExtension(fileName).ToLowerInvariant() switch
-        {
-            ".pdf"  => "PDF",
-            ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".tiff" or ".tif" or ".svg" => "Image",
-            ".doc" or ".docx" => "Word",
-            ".xls" or ".xlsx" => "Excel",
-            ".txt"  => "Text",
-            _       => "Other",
-        };
-
-    private static string GetMimeType(string filePath) =>
-        Path.GetExtension(filePath).ToLowerInvariant() switch
-        {
-            ".pdf"  => "application/pdf",
-            ".png"  => "image/png",
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".gif"  => "image/gif",
-            ".bmp"  => "image/bmp",
-            ".tiff" or ".tif" => "image/tiff",
-            ".svg"  => "image/svg+xml",
-            ".doc"  => "application/msword",
-            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ".xls"  => "application/vnd.ms-excel",
-            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ".txt"  => "text/plain",
-            _       => "application/octet-stream",
-        };
 }
