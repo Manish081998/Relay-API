@@ -93,7 +93,6 @@ internal sealed class EdgeOrderRepository : IEdgeOrderRepository
 
         return count > 0;
     }
-
     public async Task<bool> CheckForValidPO(
         string poNumber, CancellationToken cancellationToken = default)
     {

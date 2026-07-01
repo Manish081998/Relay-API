@@ -3,6 +3,7 @@ using Relay.Intranet.Contracts.Queries;
 using Relay.Intranet.Domain.Repositories;
 using Relay.Intranet.Infrastructure.Persistence.Repositories;
 
+
 namespace Relay.Intranet.Infrastructure;
 
 public static class IntranetInfrastructureModule
@@ -18,6 +19,7 @@ public static class IntranetInfrastructureModule
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IIntranetUserQueries, IntranetUserQueriesAdapter>();
         services.AddScoped<IEdgeOrderRepository, EdgeOrderRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
         return services;
     }
 }
