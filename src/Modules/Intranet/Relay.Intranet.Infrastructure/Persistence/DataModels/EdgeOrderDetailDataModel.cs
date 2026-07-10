@@ -20,11 +20,11 @@ internal sealed class EdgeOrderDetailDataModel
 
     public static EdgeOrderDetailDataModel FromRecord(IDataRecord record) => new()
     {
-        OrderGuid        = GetString(record, "OrderGUID"),
+        OrderGuid = GetString(record, "OrderGUID"),
         FinalEdiOrderXml = GetString(record, "FinalEDIorder"),
-        IsFastTrack      = GetBool(record, "FastTrack"),
-        IsEngTrack       = GetBool(record, "EngTrack"),
-        Brand            = GetString(record, "brand"),
+        IsFastTrack = GetBool(record, "FastTrack"),
+        IsEngTrack = GetBool(record, "EngTrack"),
+        Brand = GetString(record, "brand"),
     };
 
     public EdgeOrderDetail? ToAggregate()
@@ -53,105 +53,106 @@ internal sealed class EdgeOrderDetailDataModel
                 ErrorMessage: FinalEdiOrderXml.Trim());
         }
 
-        var orderInfoEl   = tts?.Element("OrderInfo");
-        var brandEl       = tts?.Element("Brand");
+        var orderInfoEl = tts?.Element("OrderInfo");
+        var brandEl = tts?.Element("Brand");
         var accountInfoEl = brandEl?.Element("AccountInfo");
-        var soldToEl      = tts?.Element("Address")?.Element("SoldTo");
-        var shipToEl      = tts?.Element("Address")?.Element("ShipTo");
-        var shippingEl    = tts?.Element("Shipping");
-        var chargesEl     = shippingEl?.Element("ShippingCharges");
+        var soldToEl = tts?.Element("Address")?.Element("SoldTo");
+        var shipToEl = tts?.Element("Address")?.Element("ShipTo");
+        var shippingEl = tts?.Element("Shipping");
+        var chargesEl = shippingEl?.Element("ShippingCharges");
 
-        var repPoNo   = GetValue(orderInfoEl, "RepPONo");
+        var repPoNo = GetValue(orderInfoEl, "RepPONo");
         var madeInUsa = ParseYesNo(GetValue(chargesEl, "MadeinUSA"));
         var trackType = IsFastTrack ? "FastTrack" : IsEngTrack ? "EngTrack" : string.Empty;
 
+
         return new EdgeOrderDetail(
-            OrderGuid:    OrderGuid,
-            RepPoNumber:  repPoNo,
-            Brand:        Brand,
-            FileName:     string.IsNullOrWhiteSpace(repPoNo) ? $"{OrderGuid}.xml" : $"{repPoNo}.xml",
-            TrackType:    trackType,
-            Info:         ParseInfo(orderInfoEl, accountInfoEl),
-            OrderInfo:    ParseOrderInfo(orderInfoEl),
-            Address:      ParseAddress(soldToEl, shipToEl),
+            OrderGuid: OrderGuid,
+            RepPoNumber: repPoNo,
+            Brand: Brand,
+            FileName: string.IsNullOrWhiteSpace(repPoNo) ? $"{OrderGuid}.xml" : $"{repPoNo}.xml",
+            TrackType: trackType,
+            Info: ParseInfo(orderInfoEl, accountInfoEl),
+            OrderInfo: ParseOrderInfo(orderInfoEl),
+            Address: ParseAddress(soldToEl, shipToEl),
             BrandAccount: ParseBrandAccount(accountInfoEl, brandEl, Brand),
-            Shipping:     ParseShipping(shippingEl),
+            Shipping: ParseShipping(shippingEl),
             MarketingProgram: ParseMarketingProgram(tts?.Element("MarketingProgram")),
             LineItemFamilies: ParseLineItems(tts?.Element("LineItems"), madeInUsa),
-            PricingTotals:    ParseDictionary(tts?.Element("PricingTotals")),
-            QuantityInfo:     ParseDictionary(tts?.Element("QuantityInfo")),
-            SpecialInfo:      ParseDictionary(tts?.Element("SpecialInfo")),
-            SpecialItems:     ParseSpecialItems(tts?.Element("SpecialItems")),
+            PricingTotals: ParseDictionary(tts?.Element("PricingTotals")),
+            QuantityInfo: ParseDictionary(tts?.Element("QuantityInfo")),
+            SpecialInfo: ParseDictionary(tts?.Element("SpecialInfo")),
+            SpecialItems: ParseSpecialItems(tts?.Element("SpecialItems")),
             IsFastTrack: IsFastTrack,
-            IsLocked:    false,
+            IsLocked: false,
             FinalEdiOrderXml: FinalEdiOrderXml);
     }
 
     private static EdgeOrderDetailInfo ParseInfo(XElement? orderInfoEl, XElement? accountInfoEl) => new(
-        RepPoNo:   GetValue(orderInfoEl, "RepPONo"),
+        RepPoNo: GetValue(orderInfoEl, "RepPONo"),
         OrderDate: GetValue(orderInfoEl, "OrderDate"),
-        FaxEmail:  GetValue(accountInfoEl, "Fax"));
+        FaxEmail: GetValue(accountInfoEl, "Fax"));
 
     private static EdgeOrderDetailOrderInfo ParseOrderInfo(XElement? orderInfoEl) => new(
-        OrderDate:    GetValue(orderInfoEl, "OrderDate"),
-        RepPoNo:      GetValue(orderInfoEl, "RepPONo"),
+        OrderDate: GetValue(orderInfoEl, "OrderDate"),
+        RepPoNo: GetValue(orderInfoEl, "RepPONo"),
         CustomerPoNo: GetValue(orderInfoEl, "CustomerPONo"),
         CustAccountNo: GetValue(orderInfoEl, "CustAccountNo"),
-        JobName:      GetValue(orderInfoEl, "JobName"),
-        SalesPerson:  GetValue(orderInfoEl, "SalesPerson"),
-        JobGuid:      GetValue(orderInfoEl, "JobGuid"));
+        JobName: GetValue(orderInfoEl, "JobName"),
+        SalesPerson: GetValue(orderInfoEl, "SalesPerson"),
+        JobGuid: GetValue(orderInfoEl, "JobGuid"));
 
     private static EdgeOrderDetailAddress ParseAddress(XElement? soldToEl, XElement? shipToEl) => new(
         SoldTo: new EdgeOrderDetailSoldTo(
-            Name:     GetValue(soldToEl, "Name1"),
+            Name: GetValue(soldToEl, "Name1"),
             Address1: GetValue(soldToEl, "Street1"),
             Address2: GetValue(soldToEl, "Street2"),
-            City:     GetValue(soldToEl, "City"),
-            State:    GetValue(soldToEl, "State"),
-            Zip:      GetValue(soldToEl, "Zip"),
-            Country:  GetValue(soldToEl, "country")),
+            City: GetValue(soldToEl, "City"),
+            State: GetValue(soldToEl, "State"),
+            Zip: GetValue(soldToEl, "Zip"),
+            Country: GetValue(soldToEl, "country")),
         ShipTo: new EdgeOrderDetailShipTo(
-            Name:     GetValue(shipToEl, "Name1"),
+            Name: GetValue(shipToEl, "Name1"),
             Address1: GetValue(shipToEl, "Street1"),
             Address2: GetValue(shipToEl, "careof"),
-            City:     GetValue(shipToEl, "City"),
-            State:    GetValue(shipToEl, "State"),
-            Zip:      GetValue(shipToEl, "Zip"),
-            Country:  GetValue(shipToEl, "Country"),
-            Phone:    GetValue(shipToEl, "Phone")));
+            City: GetValue(shipToEl, "City"),
+            State: GetValue(shipToEl, "State"),
+            Zip: GetValue(shipToEl, "Zip"),
+            Country: GetValue(shipToEl, "Country"),
+            Phone: GetValue(shipToEl, "Phone")));
 
     private static EdgeOrderDetailBrandAccount ParseBrandAccount(
         XElement? accountInfoEl, XElement? brandEl, string? brandCode) => new(
-        RepAccountNo:     GetValue(accountInfoEl, "RepAccountNo"),
-        Phone:            GetValue(accountInfoEl, "Phone"),
-        Fax:              GetValue(accountInfoEl, "Fax"),
+        RepAccountNo: GetValue(accountInfoEl, "RepAccountNo"),
+        Phone: GetValue(accountInfoEl, "Phone"),
+        Fax: GetValue(accountInfoEl, "Fax"),
         SellingWarehouse: GetValue(brandEl, "SellingWareHouse"),
-        BrandCode:        brandCode);
+        BrandCode: brandCode);
 
     private static EdgeOrderDetailShipping ParseShipping(XElement? shippingEl)
     {
-        var methodEl  = shippingEl?.Element("ShippingMethod");
+        var methodEl = shippingEl?.Element("ShippingMethod");
         var chargesEl = shippingEl?.Element("ShippingCharges");
 
         return new EdgeOrderDetailShipping(
             Method: new EdgeOrderDetailShippingMethod(
-                ShipVia:              GetValue(methodEl, "ShipVia"),
-                NoPartial:            GetValue(methodEl, "NoPartial"),
-                ShipTerms:            GetValue(methodEl, "ShipTerms"),
-                CallBeforeDelivery:   GetValue(methodEl, "CallBeforeDelivery"),
-                Terms:                GetValue(methodEl, "Terms"),
-                MarkOrder:            GetValue(methodEl, "MarkOrder"),
+                ShipVia: GetValue(methodEl, "ShipVia"),
+                NoPartial: GetValue(methodEl, "NoPartial"),
+                ShipTerms: GetValue(methodEl, "ShipTerms"),
+                CallBeforeDelivery: GetValue(methodEl, "CallBeforeDelivery"),
+                Terms: GetValue(methodEl, "Terms"),
+                MarkOrder: GetValue(methodEl, "MarkOrder"),
                 ShippingInstructions: GetValue(methodEl, "ShippingInstructions")),
             Charges: new EdgeOrderDetailShippingCharges(
-                MadeInUsa:              ParseYesNo(GetValue(chargesEl, "MadeinUSA")),
-                CommentsToFactory:      GetValue(chargesEl, "CommentsToFactory"),
+                MadeInUsa: ParseYesNo(GetValue(chargesEl, "MadeinUSA")),
+                CommentsToFactory: GetValue(chargesEl, "CommentsToFactory"),
                 CustomerServiceRequest: GetValue(chargesEl, "CustomerServiceRequest")));
     }
 
     private static EdgeOrderDetailMarketingProgram ParseMarketingProgram(XElement? el) => new(
         ProgramCode: GetValue(el, "ProgramCode"),
-        Program:     GetValue(el, "Program"),
-        SecureSda:   el?.Element("SecureSDA")?.Value?.Trim());
+        Program: GetValue(el, "Program"),
+        SecureSda: el?.Element("SecureSDA")?.Value?.Trim());
 
     private static IReadOnlyList<EdgeOrderDetailLineItemFamily> ParseLineItems(
         XElement? lineItemsEl, bool globalMadeInUsa)
@@ -161,8 +162,8 @@ internal sealed class EdgeOrderDetailDataModel
 
         // Group line items by model name to form families
         var itemsByModel = new Dictionary<string, List<EdgeOrderDetailLineItem>>(StringComparer.OrdinalIgnoreCase);
-        var modelOrder   = new List<string>();
-        var groupIndex   = 0;
+        var modelOrder = new List<string>();
+        var groupIndex = 0;
 
         foreach (var group in lineItemsEl.Elements("Group"))
         {
@@ -172,29 +173,27 @@ internal sealed class EdgeOrderDetailDataModel
                 continue;
 
             var model = GetValue(config, "Model") ?? $"Group{groupIndex}";
-            var line  = GetValue(config, "Line");
+            var line = GetValue(config, "Line");
 
-            var extraFields = config.Elements()
-                .Where(e => !KnownModelConfigFields.Contains(e.Name.LocalName))
-                .ToDictionary(
-                    e => e.Name.LocalName,
-                    e => e.Value?.Trim() is { Length: > 0 } v ? v : (string?)null,
-                    StringComparer.OrdinalIgnoreCase);
+            var extraFields = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            //// Check for duplicate extrac fields.
+            foreach (var e in config.Elements().Where(e => !KnownModelConfigFields.Contains(e.Name.LocalName)))
+                extraFields[e.Name.LocalName] = e.Value?.Trim() is { Length: > 0 } v ? v : null;
 
             var item = new EdgeOrderDetailLineItem(
-                Line:               line,
-                Model:              model,
-                PlantCode:          GetValue(config, "PlantCode"),
+                Line: line,
+                Model: model,
+                PlantCode: GetValue(config, "PlantCode"),
                 SecondaryPlantCode: GetValue(config, "SecPlantCode"),
-                Quantity:           GetValue(config, "Qty"),
-                IndividualPrice:    GetValue(config, "IndividualPrice"),
-                TotalCost:          GetValue(config, "TotalCost"),
-                Comment:            GetValue(config, "Comment"),
-                Tag:                GetValue(config, "Tag"),
-                Multiplier:         GetValue(config, "Multiplier"),
-                GroupId:            line ?? groupIndex.ToString(),
-                MadeInUsa:          globalMadeInUsa,
-                ExtraFields:        extraFields);
+                Quantity: GetValue(config, "Qty"),
+                IndividualPrice: GetValue(config, "IndividualPrice"),
+                TotalCost: GetValue(config, "TotalCost"),
+                Comment: GetValue(config, "Comment"),
+                Tag: GetValue(config, "Tag"),
+                Multiplier: GetValue(config, "Multiplier"),
+                GroupId: line ?? groupIndex.ToString(),
+                MadeInUsa: globalMadeInUsa,
+                ExtraFields: extraFields);
 
             if (!itemsByModel.ContainsKey(model))
             {
@@ -214,9 +213,9 @@ internal sealed class EdgeOrderDetailDataModel
         if (el is null) return null;
         return new EdgeOrderDetailSpecialItems(
             IsSpecial: GetValue(el, "IsSpecial"),
-            XLines:    el.Element("XLines")?.Value?.Trim(),
+            XLines: el.Element("XLines")?.Value?.Trim(),
             CommLines: el.Element("CommLines")?.Value?.Trim(),
-            CtrlQty:   GetValue(el, "CtrlQty"),
+            CtrlQty: GetValue(el, "CtrlQty"),
             FMALines: GetValue(el, "FMALines"));
     }
 
@@ -248,11 +247,11 @@ internal sealed class EdgeOrderDetailDataModel
         if (record.IsDBNull(ordinal)) return false;
         return record.GetValue(ordinal) switch
         {
-            bool b    => b,
-            int i     => i != 0,
-            short s   => s != 0,
-            byte by   => by != 0,
-            _         => false
+            bool b => b,
+            int i => i != 0,
+            short s => s != 0,
+            byte by => by != 0,
+            _ => false
         };
     }
 }
