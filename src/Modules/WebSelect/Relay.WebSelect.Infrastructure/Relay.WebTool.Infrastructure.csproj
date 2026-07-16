@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.WebTool.Infrastructure</RootNamespace>
+    <AssemblyName>Relay.WebTool.Infrastructure</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>WebTool module — persistence adapters.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Relay.WebSelect.Domain\Relay.WebTool.Domain.csproj" />
+    <ProjectReference Include="..\Relay.WebSelect.Application\Relay.WebTool.Application.csproj" />
+    <ProjectReference Include="..\Relay.WebSelect.Contracts\Relay.WebTool.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.Infrastructure.Core\Relay.Infrastructure.Core.csproj" />
+  </ItemGroup>
+
+</Project>

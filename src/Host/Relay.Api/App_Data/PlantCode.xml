@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PlantCodes>
+  <PlantCode>
+    <Code>ELP</Code>
+    <Description>El Paso</Description>
+  </PlantCode>
+  <PlantCode>
+    <Code>PON</Code>
+    <Description>Ponca City</Description>
+  </PlantCode>
+  <PlantCode>
+    <Code>TRB</Code>
+    <Description>Tarboro</Description>
+  </PlantCode>
+  <PlantCode>
+    <Code>TUC</Code>
+    <Description>Tucson</Description>
+  </PlantCode>
+  <PlantCode>
+    <Code>EP2</Code>
+    <Description>El Paso 2</Description>
+  </PlantCode>
+</PlantCodes>

@@ -1,0 +1,131 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Relay.Api.Requests.Documentum;
+using Relay.Api.Routes;
+using Relay.Documentum.Application.Queries.GetEdgeOrderBySeq;
+using Relay.Documentum.Application.Queries.GetBrands;
+using Relay.Documentum.Application.Queries.GetProductTypes;
+using Relay.Documentum.Application.Queries.GetQueuesByBrand;
+using Relay.Documentum.Application.Queries.GetRegionsByBrand;
+using Relay.Documentum.Application.Queries.GetRouteToDepartment;
+using Relay.Documentum.Application.Queries.SearchEdgeOrders;
+using Relay.Documentum.Contracts.Dtos;
+using Relay.SharedKernel.Application;
+
+namespace Relay.Api.Controllers.Documentum;
+
+[ApiController]
+[Authorize]
+public sealed class SearchOrderController : ControllerBase
+{
+    private readonly IQueryDispatcher _queries;
+
+    public SearchOrderController(IQueryDispatcher queries)
+    {
+        _queries = queries ?? throw new ArgumentNullException(nameof(queries));
+    }
+
+    [HttpGet(ApiRoutes.Documentum.SearchOrder.Search)]
+    [ProducesResponseType(typeof(PagedResultDto<EdgeOrderDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Search([FromQuery] SearchOrderRequest request, CancellationToken cancellationToken = default)
+    {
+        var query = new SearchEdgeOrdersQuery(
+            request.SalesOrderNumber,
+            request.RepPO,
+            request.AccountNumber,
+            request.ProductType,
+            request.Region,
+            request.Priority,
+            request.Brand,
+            request.CaptureDateFrom,
+            request.CaptureDateTo,
+            request.JobName,
+            request.QueueName,
+            request.PackageOwner,
+            request.RepName,
+            request.SortField,
+            request.SortDirection,
+            request.PageNumber,
+            request.PageSize);
+
+        var result = await _queries.SendAsync<SearchEdgeOrdersQuery, PagedResultDto<EdgeOrderDto>>(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.GetByOrderSeq)]
+    [ProducesResponseType(typeof(EdgeOrderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByOrderSeq(
+        [FromRoute] int orderSeq, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetEdgeOrderBySeqQuery, EdgeOrderDto?>(
+            new GetEdgeOrderBySeqQuery(orderSeq), cancellationToken);
+
+        return result.IsSuccess && result.Value is not null
+            ? Ok(result.Value)
+            : NotFound();
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.Brands)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBrands(CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetBrandsQuery, IReadOnlyList<string>>(new GetBrandsQuery(), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.ProductTypes)]
+    [ProducesResponseType(typeof(IReadOnlyList<ProductTypeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProductTypes([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetProductTypesQuery, IReadOnlyList<ProductTypeDto>>(
+            new GetProductTypesQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.Regions)]
+    [ProducesResponseType(typeof(IReadOnlyList<RegionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRegions([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetRegionsByBrandQuery, IReadOnlyList<RegionDto>>(
+            new GetRegionsByBrandQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.QueuesByBrand)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetQueuesByBrand([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetQueuesByBrandQuery, IReadOnlyList<string>>(
+            new GetQueuesByBrandQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+
+    [HttpGet(ApiRoutes.Documentum.Orders.RouteToDepartment)]
+    [ProducesResponseType(typeof(IReadOnlyList<RouteToDepartmentDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRouteToDepartment([FromQuery] string brandName, CancellationToken cancellationToken = default)
+    {
+        var result = await _queries.SendAsync<GetRouteToDepartmentQuery, IReadOnlyList<RouteToDepartmentDto>>(
+            new GetRouteToDepartmentQuery(brandName), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Error.Description);
+    }
+}

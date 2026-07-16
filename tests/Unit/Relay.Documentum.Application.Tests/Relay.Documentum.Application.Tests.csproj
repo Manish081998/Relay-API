@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Documentum.Application.Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Application\Relay.Documentum.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Domain\Relay.Documentum.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

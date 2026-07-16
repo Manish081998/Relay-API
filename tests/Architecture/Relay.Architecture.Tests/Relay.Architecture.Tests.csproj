@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Architecture.Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- All production projects, referenced so their assemblies load into the test. -->
+    <ProjectReference Include="..\..\..\src\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\src\BuildingBlocks\Relay.CrossCutting\Relay.CrossCutting.csproj" />
+    <ProjectReference Include="..\..\..\src\BuildingBlocks\Relay.Infrastructure.Core\Relay.Infrastructure.Core.csproj" />
+
+    <ProjectReference Include="..\..\..\src\Modules\Intranet\Relay.Intranet.Domain\Relay.Intranet.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Intranet\Relay.Intranet.Application\Relay.Intranet.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Intranet\Relay.Intranet.Infrastructure\Relay.Intranet.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Intranet\Relay.Intranet.Contracts\Relay.Intranet.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Domain\Relay.Documentum.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Application\Relay.Documentum.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Infrastructure\Relay.Documentum.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Documentum\Relay.Documentum.Contracts\Relay.Documentum.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Application\Relay.WebTool.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Contracts\Relay.WebTool.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Domain\Relay.WebTool.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\WebSelect\Relay.WebSelect.Infrastructure\Relay.WebTool.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,62 @@
+# Log files
+logs/
+*.log
+
+# .NET build outputs
+bin/
+obj/
+out/
+artifacts/
+publish/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.cache
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Rider / Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# MSBuild
+*.log
+*.tlog
+*.binlog
+msbuild.err
+msbuild.wrn
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!build/packages/
+
+# Code coverage
+coverage/
+*.coverage
+*.coveragexml
+lcov.info
+
+# Testcontainers / Docker
+docker-data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+appsettings.*.Local.json
+appsettings.Local.json
+secrets.json
+*.pfx
+
+# Generated
+Generated/
+# Added by code-review-graph
+.code-review-graph/

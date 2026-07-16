@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.WebTool.Application</RootNamespace>
+    <AssemblyName>Relay.WebTool.Application</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>WebTool module — use-case orchestration.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.CrossCutting\Relay.CrossCutting.csproj" />
+    <ProjectReference Include="..\Relay.WebSelect.Contracts\Relay.WebTool.Contracts.csproj" />
+    <ProjectReference Include="..\Relay.WebSelect.Domain\Relay.WebTool.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

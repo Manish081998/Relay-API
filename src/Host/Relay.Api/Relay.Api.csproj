@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Api</RootNamespace>
+    <AssemblyName>Relay.Api</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <UserSecretsId>relay-api-d1a72bff-4c28-4d4f-9f68-1e57a1b3b2fa</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+    <PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Building blocks -->
+    <ProjectReference Include="..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Relay.CrossCutting\Relay.CrossCutting.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Relay.Infrastructure.Core\Relay.Infrastructure.Core.csproj" />
+
+    <!-- Intranet module -->
+    <ProjectReference Include="..\..\Modules\Intranet\Relay.Intranet.Application\Relay.Intranet.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Intranet\Relay.Intranet.Infrastructure\Relay.Intranet.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Intranet\Relay.Intranet.Contracts\Relay.Intranet.Contracts.csproj" />
+
+    <!-- Documentum module -->
+    <ProjectReference Include="..\..\Modules\Documentum\Relay.Documentum.Application\Relay.Documentum.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Documentum\Relay.Documentum.Infrastructure\Relay.Documentum.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Documentum\Relay.Documentum.Contracts\Relay.Documentum.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\WebSelect\Relay.WebSelect.Application\Relay.WebTool.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\WebSelect\Relay.WebSelect.Contracts\Relay.WebTool.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\WebSelect\Relay.WebSelect.Infrastructure\Relay.WebTool.Infrastructure.csproj" />
+
+    <!-- WebTool module -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Assets\" />
+  </ItemGroup>
+
+</Project>

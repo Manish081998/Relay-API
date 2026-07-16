@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Documentum.Application</RootNamespace>
+    <AssemblyName>Relay.Documentum.Application</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Documentum module — use-case orchestration.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Relay.Documentum.Application.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Relay.Documentum.Domain\Relay.Documentum.Domain.csproj" />
+    <ProjectReference Include="..\Relay.Documentum.Contracts\Relay.Documentum.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.CrossCutting\Relay.CrossCutting.csproj" />
+    <!-- Cross-module query consumption: Documentum reads users via the Intranet Contracts only. -->
+    <ProjectReference Include="..\..\Intranet\Relay.Intranet.Contracts\Relay.Intranet.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

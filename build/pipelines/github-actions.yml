@@ -1,0 +1,89 @@
+# GitHub Actions workflow for Project Relay API.
+# Move this file to .github/workflows/api.yml at the repository root to enable it.
+
+name: API CI
+
+on:
+  push:
+    branches: [main, "release/*"]
+    paths: ["API/**"]
+  pull_request:
+    branches: [main]
+    paths: ["API/**"]
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CONFIGURATION: Release
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: API
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ProjectRelay.sln
+
+      - name: Build
+        run: >
+          dotnet build ProjectRelay.sln
+          --configuration ${{ env.CONFIGURATION }}
+          --no-restore
+          -p:TreatWarningsAsErrors=true
+
+      - name: Unit tests
+        run: >
+          dotnet test tests/Unit
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --logger "trx;LogFileName=unit.trx"
+          --collect:"XPlat Code Coverage"
+
+      - name: Architecture tests (module-boundary gate)
+        run: >
+          dotnet test tests/Architecture
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --logger "trx;LogFileName=architecture.trx"
+
+      - name: Integration tests (Testcontainers)
+        run: >
+          dotnet test tests/Integration
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --logger "trx;LogFileName=integration.trx"
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: API/**/TestResults/**/*.trx
+
+      - name: Publish Relay.Api
+        run: >
+          dotnet publish src/Host/Relay.Api/Relay.Api.csproj
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --output ${{ github.workspace }}/artifacts/Relay.Api
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: relay-api
+          path: ${{ github.workspace }}/artifacts/Relay.Api

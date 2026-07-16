@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.SharedKernel</RootNamespace>
+    <AssemblyName>Relay.SharedKernel</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Shared kernel: base types and abstractions used by all modules. No dependencies, stable by design.</Description>
+  </PropertyGroup>
+
+</Project>

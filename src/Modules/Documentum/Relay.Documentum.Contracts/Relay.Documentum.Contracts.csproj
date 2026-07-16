@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Relay.Documentum.Contracts</RootNamespace>
+    <AssemblyName>Relay.Documentum.Contracts</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Public surface of the Documentum module.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Relay.SharedKernel\Relay.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
